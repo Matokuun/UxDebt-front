@@ -1,0 +1,26 @@
+.home-container {
+    padding: 20px;
+  }
+  
+  .page-selection {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .card {
+    width: calc(33.33% - 20px); /* Tamaño de la tarjeta: 33.33% del ancho del contenedor menos el espacio entre las tarjetas */
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    text-decoration: none; /* Quitamos el subrayado del enlace */
+    color: #333;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease; /* Agregamos una transición suave */
+  }
+  
+  .card:hover {
+    transform: translateY(-5px); /* Efecto de levantar la tarjeta al pasar el mouse */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Agregamos una sombra al pasar el mouse */
+  }
+  

@@ -1,0 +1,95 @@
+/* IssueList.css */
+
+.issue-list-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+}
+
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.search-input,
+.search-select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  flex: 1 1 auto;
+}
+
+.search-button {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
+
+/* Use CSS Grid for responsive issue columns */
+.issue-columns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* One column per row */
+  gap: 20px;
+  justify-content: center;
+}
+
+/* Media query for smaller screens (adjust breakpoints as needed) */
+@media (max-width: 768px) {
+  .issue-columns {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+.issue-column {
+  display: flex;
+}
+
+.issue-content { /* Style the Issue component within each column */
+  flex: 1;
+  align-self: stretch;
+}
+
+/* Pagination styling */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 5px 10px;
+  margin: 0 5px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: default;
+}
+
+.pagination span {
+  margin: 0 10px;
+  font-weight: bold;
+}

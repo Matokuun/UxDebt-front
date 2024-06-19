@@ -1,0 +1,24 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background-color: #00664D; /* Cambiamos el color de fondo */
+  color: #fff;
+}
+
+.logo img {
+  width: 40px;
+  margin-right: 20px;
+}
+
+.title h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold; /* Aumentamos el peso de la fuente para mejorar la legibilidad */
+}
+
+.title p {
+  margin: 5px 0;
+  font-size: 16px; /* Aumentamos ligeramente el tamaño de la fuente */
+  opacity: 0.8;
+}
