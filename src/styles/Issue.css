@@ -1,12 +1,17 @@
 .issue-container {
   position: relative;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
   width: 100%;
   font-family: Arial, sans-serif;
+  transition: box-shadow 0.3s;
+}
+
+.issue-container:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada al pasar el mouse */
 }
 
 .issue-header {
@@ -100,12 +105,10 @@
 .issue-description-input {
   width: 100%;
   max-width: calc(100% - 1%);
-  padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
   margin-top: 4px;
-  margin-left: 4px;
   margin-right: 4px;
   resize: none;
 }

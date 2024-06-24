@@ -5,8 +5,11 @@ import '../styles/Header.css';
 const Header = () => {
     return (
       <header className="page-header">
+        
         <div className="logo">
+        <a href="/home">
           <img src="./././logo-unlp.png" alt="UNLP Logo" />
+        </a>
         </div>
         <div className="title">
           <h1>Issue Tracker</h1>

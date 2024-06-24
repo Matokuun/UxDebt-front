@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Modal from './ModalAddTag';
+import PopUp from './PopUp';
 import { useTag } from '../hooks/useTag';
 import '../styles/AddTag.css';
 
@@ -9,6 +10,7 @@ const AddTag = () => {
   const [tagDescription, setTagDescription] = useState('');
   const [tagCode, setTagCode] = useState('');
   const { addTag } = useTag();
+  const [popup, setPopup] = useState({ status:'', show: false, message: '' });
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -25,15 +27,22 @@ const AddTag = () => {
     event.preventDefault();
     try {
       const newTag = { name: tagName, code: tagCode, description: tagDescription };
-      await addTag(newTag);
-      handleCloseModal();
-    } catch (error) {
-      console.error('Error adding tag:', error);
-    }
+      await addTag(newTag);      
+      setPopup({ show: true, status:'success', message :'Tag Creado con exito' })    
+    
+    }catch (error) {           
+      setPopup({ show: true, status:'error', message :'Error al crear el Tag' })        
+      console.error('Error adding tag:', error);        
+    }      
+  };
+
+  const closePopup = () => {
+    setPopup({ show: false, status: '', message: '' });
   };
 
   return (
-    <div>
+    <div>    
+
       <button className="add-tag-button" onClick={handleOpenModal}>
         Agregar nuevo tag
       </button>
@@ -68,10 +77,16 @@ const AddTag = () => {
               value={tagDescription}
               onChange={(e) => setTagDescription(e.target.value)}
             ></textarea>
-          </div>
+          </div>          
           <button type="submit">Guardar</button>
         </form>
       </Modal>
+      <PopUp 
+        status={popup.status} 
+        message={popup.message} 
+        show={popup.show} 
+        onClose={closePopup}
+      />
     </div>
   );
 };

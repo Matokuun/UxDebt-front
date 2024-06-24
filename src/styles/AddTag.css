@@ -1,8 +1,8 @@
 .add-tag-button {
   position: fixed;
   bottom: 20px;
-  right: 20px;
-  background-color: green;
+  left: 20px;
+  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 50px;
@@ -14,5 +14,5 @@
 }
 
 .add-tag-button:hover {
-  background-color: darkgreen;
+  background-color: #174b82;
 }

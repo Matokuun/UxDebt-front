@@ -9,6 +9,7 @@ export const useIssue = () => {
     CreatedAt: null,
     Discarded: null,
     Status: null,
+    RepositoryId: null,
     Tags: [],
     Labels: []
   });
@@ -18,7 +19,7 @@ export const useIssue = () => {
   }, [filters]);
 
   const fetchIssues = async (filters) => {
-    const { pageNumber, pageSize, Title, CreatedAt, Discarded, Status, Tags, Labels } = filters;
+    const { pageNumber, pageSize, Title, CreatedAt, Discarded, Status, RepositoryId, Tags, Labels } = filters;
     try {
       console.log(`https://localhost:7237/api/Issue/GetAllByFilter/${pageNumber}/${pageSize}`);
       console.log(JSON.stringify({
@@ -26,6 +27,7 @@ export const useIssue = () => {
         CreatedAt,
         Discarded,
         Status,
+        RepositoryId,
         Tags,
         Labels
       }));
@@ -35,23 +37,11 @@ export const useIssue = () => {
         CreatedAt,
         Discarded,
         Status,
+        RepositoryId,
         Tags,
         Labels
-      }
-      switch (Discarded) {
-        case "true":
-          body.Discarded = true;
-          break;
-        case "false":
-          body.Discarded = false;
-          break;
-      
-        default:
-          body.Discarded = null;
-      }
-          
-
-
+      }      
+              
       const response = await fetch(`https://localhost:7237/api/Issue/GetAllByFilter/${pageNumber}/${pageSize}`, {
         method: 'POST',
         headers: {
@@ -60,7 +50,6 @@ export const useIssue = () => {
         body: JSON.stringify(body),
       });
       const data = await response.json();
-      console.log(data.items);
       setIssues(data.items ? data.items : []);
     } catch (error) {
       console.error('🪝useIssue - Error fetching issues:', error);
@@ -114,13 +103,25 @@ export const useIssue = () => {
   };
 
   const updateFilters = (newFilters) => {
+    console.log("updateFilters",newFilters);
     setFilters((prevFilters) => ({
       ...prevFilters,
       ...newFilters,
     }));
   };
 
-  return { issues, switchDiscarded, updateIssue,updateFilters,filters};
+  const getIssue = async (id) => {
+    try {
+      const response = await fetch(`https://localhost:7237/api/Issue/Get/${id}`);
+      const data = await response.json();   
+      return data;
+
+    } catch (error) {
+      console.error('Error fetching issue:', error);
+    }
+  };
+
+  return { issues, switchDiscarded, updateIssue, updateFilters, getIssue};
 };
 
 export default useIssue;

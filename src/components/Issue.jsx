@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import '../styles/Issue.css';
 import Modal from './Modal';
+import ModalAddTagToIssue from './ModalAddTagToIssue';
 
-const Issue = ({ issue, onSwitchDiscarded, onUpdateIssue }) => {
-  const [description, setDescription] = useState(issue.observation || '');
+
+const Issue = ({ issue, repoName, onSwitchDiscarded, onUpdateIssue }) => {
+  const [description, setDescription] = useState(issue.observation || '');  
   const [discarded, setDiscarded] = useState(issue.discarded || false);
-  const [isLoading, setIsLoading] = useState(false); // Estado para manejar la carga de la operación
+
+  const [isLoading, setIsLoading] = useState(false);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showModalAddTagToIssue, setshowModalAddTagToIssue] = useState(false); // Nuevo estado para el modal de agregar tag
 
+  useEffect(() => {
+    
+    setDescription(issue.observation || '');
+    setDiscarded(issue.discarded || false);
+
+  },[issue])
+
+  
   const handleSwitchDiscarded = async () => {
     setIsLoading(true); // Activamos la carga mientras se realiza la operación
 
@@ -52,6 +64,15 @@ const Issue = ({ issue, onSwitchDiscarded, onUpdateIssue }) => {
     setErrorModalOpen(false);
   };
 
+  const handleOpenAddTagToIssue = () => {
+    console.log('open');
+    setshowModalAddTagToIssue(true); // Abre el modal de agregar tag
+  };
+
+  const handleCloseAddTagToIssue = () => {
+    setshowModalAddTagToIssue(false); // Cierra el modal de agregar tag
+  };
+
   return (
     <div className={`issue-container ${isLoading ? 'loading' : ''}`}>
       {errorModalOpen && (
@@ -61,6 +82,14 @@ const Issue = ({ issue, onSwitchDiscarded, onUpdateIssue }) => {
           onClose={handleCloseErrorModal}
         />
       )}
+      {showModalAddTagToIssue && (
+        <ModalAddTagToIssue
+        show={showModalAddTagToIssue}
+        onClose={handleCloseAddTagToIssue}
+        issueId={issue.issueId}
+        actualsTags={issue.tags}
+        />
+        )}
       <div className="issue-header">
         <h2 className="issue-title">{issue.title}</h2>
         <div className={`issue-status status-${issue.status}`}>
@@ -80,7 +109,7 @@ const Issue = ({ issue, onSwitchDiscarded, onUpdateIssue }) => {
         ))}
       </div>
       <div className="issue-details">
-        <p className="issue-id"><strong>ID:</strong> {issue.issueId}</p>
+        <p className="issue-id"><strong>Repositorio:</strong> {repoName}</p>
         <p className="issue-created"><strong>Creado:</strong> {new Date(issue.createdAt).toLocaleDateString()}</p>
         <p className="issue-closed"><strong>Cerrado:</strong> {issue.closedAt ? new Date(issue.closedAt).toLocaleDateString() : ''}</p>
         <div className="issue-description">
@@ -110,6 +139,9 @@ const Issue = ({ issue, onSwitchDiscarded, onUpdateIssue }) => {
         </div>
         <button onClick={handleSubmit} className="submit-button" disabled={isLoading}>
           Modificar
+        </button>
+        <button onClick={handleOpenAddTagToIssue} className="submit-button" disabled={isLoading}>
+          Modificar Tags
         </button>
       </div>
     </div>

@@ -3,11 +3,13 @@ import useRepositories from '../hooks/useRepositories';
 import '../styles/RepositoryList.css';
 import ModalCreateRepository from './ModalCreateRepository';
 import ModalDownloadRepository from './ModalDownloadRepository'; // Updated import
+import PopUp from './PopUp';
 
 const RepositoryList = () => {
-  const { repositories, error, downloadNewRepository,updateRepository } = useRepositories(); // Include downloadNewRepository
+  const { repositories, error, updateRepository } = useRepositories(); // Include downloadNewRepository
   const [isModalOpenCreate, setIsModalOpenCreate] = useState(false);
   const [isModalOpenDownload, setIsModalOpenDownload] = useState(false);
+  const [popup, setPopup] = useState({ status:'', show: false, message: '' });
 
   const handleOpenModalCreate = () => {
     setIsModalOpenCreate(true);
@@ -30,29 +32,13 @@ const RepositoryList = () => {
     console.log('Creando nuevo repositorio:', data);
     handleCloseModalCreate(); // Cierra el modal después de crear el repositorio
   };
-
-  const handleDownloadRepository = async (data) => {
-    // Get owner and name from data (assuming data contains owner and name)
-    const { owner, name } = data;
-
-    try {
-      // Call downloadNewRepository
-      await downloadNewRepository(owner, name);
-      console.log('Download initiated for repository:', data); 
-    } catch (error) {
-      console.error('Error downloading repository:', error);
-      // Handle download error (optional)
-    } finally {
-      handleCloseModalDownload(); // Close the modal after download initiation or error
-    }
-  };
-
   const handleUpdateRepository = async (repositoryId) => {
     try {
       await updateRepository(repositoryId);
-      console.log('Repository updated:', repositoryId);
+      setPopup({ show: true, status:'success', message :'Repositorio actualizado con exito' })    
+
     } catch (error) {
-      console.error('Error updating repository:', error);
+      setPopup({ show: true, status:'error', message :'Error al actualizar' })    
     }
   };
 
@@ -63,6 +49,11 @@ const RepositoryList = () => {
   if (repositories.length === 0) {
     return <div>No repositories found</div>;
   }
+
+  
+  const closePopup = () => {
+    setPopup({ show: false, status: '', message: '' });
+  };
 
   return (
     <div className="repository-list-container">
@@ -91,9 +82,14 @@ const RepositoryList = () => {
       {isModalOpenDownload && (
         <ModalDownloadRepository // Updated usage
           onClose={handleCloseModalDownload}
-          onDownload={handleDownloadRepository} // Pass handleDownloadRepository
         />
       )}
+      <PopUp 
+        status={popup.status} 
+        message={popup.message} 
+        show={popup.show} 
+        onClose={closePopup}
+      />
     </div>
   );
 };

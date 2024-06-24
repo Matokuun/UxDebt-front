@@ -1,17 +1,31 @@
 import React, { useState } from 'react';
 import '../styles/ModalCreateRepository.css';
+import PopUp from './PopUp';
 
 const ModalCreateRepository = ({ onClose }) => {
   const [name, setName] = useState('');
   const [gitId, setGitId] = useState('');
   const [htmlUrl, setHtmlUrl] = useState('');
   const [description, setDescription] = useState('');
+  const [popup, setPopup] = useState({ status:'', show: false, message: '' });
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    // Aquí puedes manejar el envío del formulario, por ahora solo vamos a imprimir los valores
-    console.log({ name, gitId, htmlUrl, description });
-    onClose(); // Cierra el modal después de enviar el formulario
+
+    try {
+      e.preventDefault();
+      setPopup({ show: true, status:'success', message :'Repositorio creado con exito' })
+      console.log({ name, gitId, htmlUrl, description });
+      onClose(); // Cierra el modal después de enviar el formulario
+      
+    } catch (error) {
+      setPopup({ show: true, status:'error', message :'Error al crear Repositorio' })        
+      console.error('Error adding tag:', error);    
+    }
+    
+  };
+
+  const closePopup = () => {
+    setPopup({ show: false, status: '', message: '' });
   };
 
   return (
@@ -64,6 +78,12 @@ const ModalCreateRepository = ({ onClose }) => {
           </div>
         </form>
       </div>
+      <PopUp 
+        status={popup.status} 
+        message={popup.message} 
+        show={popup.show} 
+        onClose={closePopup}
+      />
     </div>
   );
 };
