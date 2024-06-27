@@ -20,28 +20,17 @@ export const useIssue = () => {
 
   const fetchIssues = async (filters) => {
     const { pageNumber, pageSize, Title, CreatedAt, Discarded, Status, RepositoryId, Tags, Labels } = filters;
-    try {
-      console.log(`https://localhost:7237/api/Issue/GetAllByFilter/${pageNumber}/${pageSize}`);
-      console.log(JSON.stringify({
-        Title: Title || null,
-        CreatedAt,
-        Discarded,
-        Status,
-        RepositoryId,
-        Tags,
-        Labels
-      }));
-
+    try {    
+      
       let body = {
         Title: Title || null,
         CreatedAt,
-        Discarded,
+        Discarded:  Discarded === null ? null : (Discarded === "true"),
         Status,
         RepositoryId,
         Tags,
         Labels
-      }      
-              
+      }                  
       const response = await fetch(`https://localhost:7237/api/Issue/GetAllByFilter/${pageNumber}/${pageSize}`, {
         method: 'POST',
         headers: {

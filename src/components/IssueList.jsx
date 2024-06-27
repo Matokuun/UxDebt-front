@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import useIssue from '../hooks/useIssue';
 import useRepositories from '../hooks/useRepositories';
 import Issue from './Issue';
-import Modal from './Modal';
 import '../styles/IssueList.css';
 import useTag from '../hooks/useTag';
 import PopUp from './PopUp';
@@ -10,11 +9,7 @@ import PopUp from './PopUp';
 const IssueList = () => {
   const { issues, switchDiscarded, updateIssue, updateFilters} = useIssue();
   const { repositories } = useRepositories();
-  const { tags } = useTag(); 
-
-
-  const [errorModalOpen, setErrorModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const { tags } = useTag();
   const [searchTitle, setSearchTitle] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchCreatedAt, setSearchCreatedAt] = useState('');
@@ -42,19 +37,15 @@ const IssueList = () => {
   const handleUpdateIssue = async (issueId, updatedIssue) => {
     try {
       await updateIssue(issueId, updatedIssue);
-      setPopup({ show: true, status:'success', message :'Issue actualizado con exito' })    
-
     } catch (error) {
-      setPopup({ show: true, status:'error', message :'Error al actualizar el Issue' })        
       console.error('Error updating issue:', error);
     }
   };
 
-  const handleCloseErrorModal = () => {
-    setErrorModalOpen(false);
-  };
 
   const handleSearch = () => {
+
+    console.log('searchDiscarded',searchDiscarded);
     updateFilters({
       Title: searchTitle.trim() || null,
       CreatedAt: searchCreatedAt || null,
@@ -184,7 +175,7 @@ const IssueList = () => {
           {tags?.map(tag => (
             <div
               key={tag.tagId}
-              className="tag"
+              className="tag tag-search"
               style={{ backgroundColor: searchTags.includes(tag.tagId) ? "#007bff" : "#e0e0e0", cursor: "pointer" }}
               onClick={() => handleTagClick(tag.tagId)}
             >
@@ -197,14 +188,7 @@ const IssueList = () => {
       <div className="search-buttons">
         <button className="search-button" onClick={handleSearch}>Buscar</button>
         <button className="search-button" onClick={handleClearFilters}>Limpiar filtros</button>
-      </div>
-      {errorModalOpen && (
-        <Modal
-          title="Error"
-          description={errorMessage}
-          onClose={handleCloseErrorModal}
-        />
-      )}
+      </div>      
       <div className="issue-columns">
         {Array.isArray(issues) && issues.length > 0 ? (
           issues.map((issue) => (
@@ -218,7 +202,7 @@ const IssueList = () => {
             </div>
           ))
         ) : (
-          <div>No issues found.</div>
+          <div className="message no-issues-message">No issues found.</div>
         )}
       </div>
       <div className="pagination">

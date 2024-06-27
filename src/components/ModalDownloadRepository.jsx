@@ -9,22 +9,23 @@ const ModalDownloadRepository = ({ onClose }) => {
   const [popup, setPopup] = useState({ status:'', show: false, message: '' });
   const { downloadNewRepository } = useRepositories(); // Include downloadNewRepository
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    handleDownloadRepository({ owner, name });
-    onClose();
+    setPopup({ show: true, status:'success', message :'Esta operacion puede demorar.' })
+    await handleDownloadRepository({ owner, name });
   };
 
-  const handleDownloadRepository = async (_owner, _name) => {
+  const handleDownloadRepository = async (_sender) => {
     try {
-      // Call downloadNewRepository
-      await downloadNewRepository(_owner, _name);
+      //setPopup({ show: true, status:'success', message :'Esta operacion puede demorar.' })
+      await downloadNewRepository(_sender);
       setPopup({ show: true, status:'success', message :'Repositorio descargado con exito' })
-    } catch (error) {
+    } 
+    catch (error) {
       setPopup({ show: true, status:'error', message :'Error al descargar el repositorio' }) 
       console.error('Error downloading repo:', error);
     } finally {
-      onClose(); // Close the modal after download initiation or error
+      //onClose();
     }
   };
 
@@ -62,7 +63,7 @@ const ModalDownloadRepository = ({ onClose }) => {
               Descargar
             </button>
             <button type="button" onClick={onClose} className="cancel-button">
-              Cancelar
+              Cerrar
             </button>
           </div>
         </form>

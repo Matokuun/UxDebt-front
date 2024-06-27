@@ -1,38 +1,43 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState } from 'react';
 import '../styles/Issue.css';
-import Modal from './Modal';
 import ModalAddTagToIssue from './ModalAddTagToIssue';
-
+import PopUp from './PopUp';
 
 const Issue = ({ issue, repoName, onSwitchDiscarded, onUpdateIssue }) => {
-  const [description, setDescription] = useState(issue.observation || '');  
+  const [description, setDescription] = useState(issue.observation || '');
   const [discarded, setDiscarded] = useState(issue.discarded || false);
-
   const [isLoading, setIsLoading] = useState(false);
-  const [errorModalOpen, setErrorModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [showModalAddTagToIssue, setshowModalAddTagToIssue] = useState(false); // Nuevo estado para el modal de agregar tag
+  const [showModalAddTagToIssue, setShowModalAddTagToIssue] = useState(false);
+  const [popup, setPopup] = useState({ status: '', show: false, message: '' });
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [pageIssue, setPageIssue] = useState(issue);
 
-  useEffect(() => {
-    
-    setDescription(issue.observation || '');
-    setDiscarded(issue.discarded || false);
+  // useEffect(() => {
 
-  },[issue])
+  //   setDescription(issue.observation || '');
+  //   setDiscarded(issue.discarded || false);
+  // }, [issue]);
 
-  
+  const labelsArray = issue.labels ? issue.labels.split(',').map(label => label.trim()) : [];
+
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   const handleSwitchDiscarded = async () => {
-    setIsLoading(true); // Activamos la carga mientras se realiza la operación
-
+    setIsLoading(true);
     try {
       await onSwitchDiscarded(issue.issueId);
-      setDiscarded(!discarded); // Actualizamos el estado local solo si la operación tiene éxito
+      setDiscarded(!discarded);
     } catch (error) {
+
+      //turn back the discarded
+      pageIssue.discarded = issue.discarded;
+      setPageIssue(pageIssue);
+
       console.error('Error switching discarded:', error);
-      setErrorMessage('Hubo un error al cambiar el estado de descartado.');
-      setErrorModalOpen(true);
     } finally {
-      setIsLoading(false); // Desactivamos la carga al finalizar la operación, ya sea éxito o error
+      setIsLoading(false);
     }
   };
 
@@ -41,99 +46,113 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onUpdateIssue }) => {
   };
 
   const handleSubmit = async () => {
-    setIsLoading(true); // Activamos la carga mientras se realiza la operación
-
+    setIsLoading(true);
     const updatedIssue = {
-      ...issue,
+      ...pageIssue,
       observation: description,
     };
-
     try {
-      await onUpdateIssue(issue.issueId, updatedIssue);
-      // Podemos agregar lógica adicional aquí después de una actualización exitosa si es necesario
+      let resp= await onUpdateIssue(pageIssue.issueId, updatedIssue);
+      console.log('resp',resp);
+      setPopup({ show: true, status: 'success', message: 'Descripción del issue modificada con éxito' });
     } catch (error) {
+      //turn back the description
+      pageIssue.observation = issue.observation;
+      console.log(issue.observation);
+      console.log(pageIssue.observation);
+      setPageIssue(pageIssue);
+      
       console.error('Error updating issue:', error);
-      setErrorMessage('Hubo un error al actualizar el issue.');
-      setErrorModalOpen(true);
+      setPopup({ show: true, status: 'error', message: 'Error al modificar la descripción del issue' });
     } finally {
-      setIsLoading(false); // Desactivamos la carga al finalizar la operación, ya sea éxito o error
+      setIsLoading(false);
     }
   };
 
-  const handleCloseErrorModal = () => {
-    setErrorModalOpen(false);
-  };
-
   const handleOpenAddTagToIssue = () => {
-    console.log('open');
-    setshowModalAddTagToIssue(true); // Abre el modal de agregar tag
+    setShowModalAddTagToIssue(true);
   };
 
   const handleCloseAddTagToIssue = () => {
-    setshowModalAddTagToIssue(false); // Cierra el modal de agregar tag
+    setShowModalAddTagToIssue(false);
   };
 
-  return (
+  const closePopup = () => {
+    setPopup({ show: false, status: '', message: '' });
+  };
+
+  return (    
     <div className={`issue-container ${isLoading ? 'loading' : ''}`}>
-      {errorModalOpen && (
-        <Modal
-          title="Error"
-          description={errorMessage}
-          onClose={handleCloseErrorModal}
-        />
-      )}
       {showModalAddTagToIssue && (
         <ModalAddTagToIssue
-        show={showModalAddTagToIssue}
-        onClose={handleCloseAddTagToIssue}
-        issueId={issue.issueId}
-        actualsTags={issue.tags}
+          show={showModalAddTagToIssue}
+          onClose={handleCloseAddTagToIssue}
+          issueId={pageIssue.issueId}
+          actualsTags={pageIssue.tags}
         />
-        )}
+      )}
       <div className="issue-header">
-        <h2 className="issue-title">{issue.title}</h2>
-        <div className={`issue-status status-${issue.status}`}>
-          {issue.status === 0 ? 'Open' : issue.status === 1 ? 'Closed' : 'All'}
-        </div>
-      </div>
-      <div className="issue-link-container">
-        <a href={issue.htmlUrl} target="_blank" rel="noopener noreferrer" className="issue-link">
-          Ver en GitHub
+        <a title='Abrir en GitHub' href={pageIssue.htmlUrl} target="_blank" rel="noopener noreferrer" className="issue-link">
+          <h2 className="issue-title">{pageIssue.title}</h2>
         </a>
+        <span className={`issue-status status-${pageIssue.status}`}>
+          {pageIssue.status === 0 ? 'Open' : pageIssue.status === 1 ? 'Closed' : 'All'}
+        </span>
       </div>
       <div className="issue-tags">
-        {issue.tags?.map(tag => (
-          <div key={tag.tagId} className="tag">
-            {tag.name}
+        <strong>Tags:</strong>
+          <div className="issue-tags-grid">
+            {pageIssue.tags?.map(tag => (
+              <div key={tag.tagId} className="tag">
+                {tag.name}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="issue-details">
-        <p className="issue-id"><strong>Repositorio:</strong> {repoName}</p>
-        <p className="issue-created"><strong>Creado:</strong> {new Date(issue.createdAt).toLocaleDateString()}</p>
-        <p className="issue-closed"><strong>Cerrado:</strong> {issue.closedAt ? new Date(issue.closedAt).toLocaleDateString() : ''}</p>
-        <div className="issue-description">
-          <label htmlFor={`desc-${issue.issueId}`}><strong>Descripción</strong></label>
-          <textarea
-            id={`desc-${issue.issueId}`}
-            value={description}
-            onChange={handleDescriptionChange}
-            rows="3"
-            className="issue-description-input"
-            disabled={isLoading} // Deshabilitamos el textarea mientras se realiza la operación
-          />
         </div>
-        <div className="issue-action">
-          <label className="switch-container">
+      <div className="issue-link-container">        
+      </div>
+      <div className="issue-content">
+        <div className="issue-details">
+          <p className="issue-repo"><strong>Repositorio:</strong> {repoName}</p>
+          <p className="issue-created"><strong>Creado:</strong> {new Date(pageIssue.createdAt).toLocaleDateString()}</p>
+          <p className="issue-closed"><strong>Cerrado:</strong> {pageIssue.closedAt ? new Date(pageIssue.closedAt).toLocaleDateString() : ''}</p>
+          <div className="issue-labels">
+            <p><strong>Labels:</strong></p>
+            <ul>
+              {labelsArray.slice(0, isExpanded ? labelsArray.length : 3).map((label, index) => (
+                <li key={index} className="label">{label}</li>
+              ))}
+            </ul>
+            {labelsArray.length > 3 && (
+              <button onClick={toggleExpand} className="expand-button">
+                {isExpanded ? 'Mostrar menos' : 'Mostrar más'}
+              </button>
+            )}
+          </div>
+        </div>          
+      </div>
+      <div className="issue-description">
+        <label htmlFor={`desc-${pageIssue.issueId}`}><strong>Descripción</strong></label>
+        <textarea
+          id={`desc-${pageIssue.issueId}`}
+          value={description}
+          onChange={handleDescriptionChange}
+          rows="3"
+          className="issue-description-input"
+          disabled={isLoading}
+        />
+      </div>
+      <div className="issue-actions">
+        <div className="switch-container">
+          <label className="switch">
             <input
               type="checkbox"
-              id={`discard-${issue.issueId}`}
-              className="switch-checkbox"
+              id={`discard-${pageIssue.issueId}`}
               checked={discarded}
               onChange={handleSwitchDiscarded}
-              disabled={isLoading} // Deshabilitamos el switch mientras se realiza la operación
+              disabled={isLoading}
             />
-            <span className="switch-slider"></span>
+            <span className="slider"></span>
           </label>
           <span className="switch-text">Descartado</span>
         </div>
@@ -144,6 +163,12 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onUpdateIssue }) => {
           Modificar Tags
         </button>
       </div>
+      <PopUp
+        status={popup.status}
+        message={popup.message}
+        show={popup.show}
+        onClose={closePopup}
+      />
     </div>
   );
 };

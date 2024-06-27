@@ -1,17 +1,18 @@
 .issue-container {
   position: relative;
-  background-color: #ffffff;
+  background-color: #f9f9f9;
   border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   transition: box-shadow 0.3s;
+  margin-bottom: 16px;
 }
 
 .issue-container:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada al pasar el mouse */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .issue-header {
@@ -21,54 +22,91 @@
 }
 
 .issue-title {
-  font-size: 1.5em;
+  font-size: 1.75em;
   color: #333;
   margin: 0;
+  font-weight: 600;
 }
 
 .issue-status {
-  padding: 6px 12px;
-  border-radius: 4px;
+  padding: 8px 16px;
+  border-radius: 8px;
   font-weight: bold;
   text-transform: capitalize;
 }
 
 .status-0 {
-  background-color: green;
+  background-color: #28a745;
   color: #fff;
 }
 
 .status-1 {
-  background-color: red;
+  background-color: #dc3545;
   color: #fff;
 }
 
 .status-2 {
-  background-color: gray;
+  background-color: #6c757d;
   color: #fff;
-}
-
-.issue-link-container {
-  margin-top: 8px;
-  margin-bottom: 12px;
 }
 
 .issue-link {
-  display: inline-block;
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: #fff;
   text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
 }
 
-.issue-link:hover {
-  background-color: #0056b3;
+.issue-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.issue-details {
+  flex: 1;
+}
+
+.issue-repo,
+.issue-created,
+.issue-closed {
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.issue-labels {
+  margin-top: 12px;
+}
+
+.issue-labels ul {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.label {
+  background-color: #e0e0e0;
+  color: #333;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.label:hover {
+  background-color: #c0c0c0;
+  color: #000;
 }
 
 .issue-tags {
+  flex-wrap: wrap;
   margin-top: 12px;
+  margin-right: 30px;
+
+}
+
+.issue-tags-grid {
+  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -78,72 +116,88 @@
   background-color: #e0e0e0;
   color: #333;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.9em;
+  display: inline-block;
   transition: background-color 0.3s, color 0.3s;
+  text-align: center; /* Centra el texto horizontalmente */
 }
+
 
 .tag:hover {
   background-color: #c0c0c0;
   color: #000;
 }
 
-.issue-details {
-  margin-top: 12px;
+.tag-button {
+  padding: 12px 24px; /* Ajusta el relleno para cambiar el tamaño del botón */
+  font-size: 16px;    /* Ajusta el tamaño de la fuente */
+  height: 48px;       /* Ajusta la altura del botón */
+  width: auto;        /* Ajusta el ancho del botón (puedes usar un valor fijo si lo prefieres) */
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px; /* Cambia el radio de borde si quieres un estilo más redondeado */
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+
+.tag-button:hover {
+  background-color: #0056b3;
 }
 
 .issue-description {
-  margin-top: 12px;
+  margin-top: 24px;
+  margin-right: 30px;
+
 }
 
 .issue-description label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   color: #444;
+  font-weight: 500;
+
 }
 
 .issue-description-input {
   width: 100%;
-  max-width: calc(100% - 1%);
   border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 1em;
+  padding: 12px;
   margin-top: 4px;
-  margin-right: 4px;
+  margin-right: 10px;
   resize: none;
 }
 
-.submit-button {
-  margin-top: 8px;
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  font-size: 16px;
-}
-
-.submit-button:hover {
-  background-color: #0056b3;
+.issue-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
 }
 
 .switch-container {
-  display: inline-block;
-  position: relative;
-  width: 40px;
-  height: 20px;
-  margin-top: 2px;
+  display: flex;
+  align-items: center;
 }
 
-.switch-checkbox {
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 25px;
+}
+
+.switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.switch-slider {
+.slider {
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -151,15 +205,15 @@
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  border-radius: 20px;
+  border-radius: 25px;
   transition: .4s;
 }
 
-.switch-slider:before {
+.slider:before {
   position: absolute;
   content: "";
-  height: 16px;
-  width: 16px;
+  height: 21px;
+  width: 21px;
   left: 2px;
   bottom: 2px;
   background-color: white;
@@ -167,22 +221,45 @@
   transition: .4s;
 }
 
-.switch-checkbox:checked + .switch-slider {
+input:checked + .slider {
   background-color: #2196F3;
 }
 
-.switch-checkbox:checked + .switch-slider:before {
-  transform: translateX(20px);
+input:checked + .slider:before {
+  transform: translateX(25px);
 }
 
 .switch-text {
-  margin-left: 10px;
-  vertical-align: middle;
+  margin-left: 12px;
+  font-size: 1em;
+  color: #555;
 }
 
-.issue-action {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-top: 2px;
+.submit-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 1em;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+.expand-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.expand-button:hover {
+  background-color: #0056b3;
 }

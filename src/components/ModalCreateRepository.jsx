@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
 import '../styles/ModalCreateRepository.css';
 import PopUp from './PopUp';
+import useRepositories from '../hooks/useRepositories';
 
 const ModalCreateRepository = ({ onClose }) => {
   const [name, setName] = useState('');
   const [gitId, setGitId] = useState('');
   const [htmlUrl, setHtmlUrl] = useState('');
   const [description, setDescription] = useState('');
+  const [owner, setOwner] = useState('');
   const [popup, setPopup] = useState({ status:'', show: false, message: '' });
+  const { createNewRepository } = useRepositories(); // Include downloadNewRepository
 
   const handleSubmit = (e) => {
 
     try {
       e.preventDefault();
+      
+      createNewRepository(name, owner, gitId, htmlUrl, description)
       setPopup({ show: true, status:'success', message :'Repositorio creado con exito' })
       console.log({ name, gitId, htmlUrl, description });
       onClose(); // Cierra el modal después de enviar el formulario
@@ -33,6 +38,16 @@ const ModalCreateRepository = ({ onClose }) => {
       <div className="modal">
         <h2>Crear Nuevo Repositorio</h2>
         <form onSubmit={handleSubmit}>
+        <div className="form-group">
+            <label htmlFor="owner">Dueño</label>
+            <input
+              type="text"
+              id="owner"
+              value={owner}
+              onChange={(e) => setOwner(e.target.value)}
+              required
+            />
+          </div>
           <div className="form-group">
             <label htmlFor="name">Nombre</label>
             <input
@@ -74,7 +89,7 @@ const ModalCreateRepository = ({ onClose }) => {
           </div>
           <div className="form-actions">
             <button type="submit" className="submit-button">Crear</button>
-            <button type="button" onClick={onClose} className="cancel-button">Cancelar</button>
+            <button type="button" onClick={onClose} className="cancel-button">Cerrar</button>
           </div>
         </form>
       </div>
