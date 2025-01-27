@@ -1,147 +1,162 @@
 import React, { useState } from 'react';
 import '../styles/Issue.css';
-import ModalAddTagToIssue from './ModalAddTagToIssue';
-import PopUp from './PopUp';
+import useTag from '../hooks/useTag';
+import { Chip, Autocomplete, TextField, CircularProgress, Box, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
+import dayjs from 'dayjs';
+import 'dayjs/locale/es';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
-const Issue = ({ issue, repoName, onSwitchDiscarded, onUpdateIssue }) => {
+dayjs.extend(relativeTime);
+dayjs.locale('es');
+
+const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
+  const { tags } = useTag();
   const [description, setDescription] = useState(issue.observation || '');
   const [discarded, setDiscarded] = useState(issue.discarded || false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showModalAddTagToIssue, setShowModalAddTagToIssue] = useState(false);
-  const [popup, setPopup] = useState({ status: '', show: false, message: '' });
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, severity: '', message: '' });
   const [pageIssue, setPageIssue] = useState(issue);
-
-  // useEffect(() => {
-
-  //   setDescription(issue.observation || '');
-  //   setDiscarded(issue.discarded || false);
-  // }, [issue]);
-
+  const [selectedTags, setSelectedTags] = useState(issue.tags || []);
   const labelsArray = issue.labels ? issue.labels.split(',').map(label => label.trim()) : [];
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
+  const isClosed = pageIssue.closedAt != null;
 
   const handleSwitchDiscarded = async () => {
     setIsLoading(true);
     try {
       await onSwitchDiscarded(issue.issueId);
-      setDiscarded(!discarded);
+      const newDiscardedState = !discarded;
+      setDiscarded(newDiscardedState);
+
+      setSnackbar({
+        open: true,
+        severity: 'info',
+        message: newDiscardedState
+          ? 'El issue fue marcado como descartado'
+          : 'El issue ya no está marcado como descartado',
+      });
     } catch (error) {
-
-      //turn back the discarded
-      pageIssue.discarded = issue.discarded;
-      setPageIssue(pageIssue);
-
       console.error('Error switching discarded:', error);
+      setSnackbar({
+        open: true,
+        severity: 'error',
+        message: 'Error al cambiar el estado del issue',
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDescriptionChange = (event) => {
-    setDescription(event.target.value);
-  };
+  const handleDescriptionChange = (event) => setDescription(event.target.value);
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    const updatedIssue = {
-      ...pageIssue,
-      observation: description,
-    };
+    const tagIds = selectedTags.map(tag => tag.tagId);
+
     try {
-      let resp= await onUpdateIssue(pageIssue.issueId, updatedIssue);
-      console.log('resp',resp);
-      setPopup({ show: true, status: 'success', message: 'Descripción del issue modificada con éxito' });
+      const isDescriptionChanged = description !== pageIssue.observation;
+      const isDescriptionEmpty = description.trim() === '';
+
+      if (isDescriptionChanged || isDescriptionEmpty) {
+        const issueUpdateResponse = await fetch(`http://localhost:7237/api/Issue/Update/${pageIssue.issueId}/`, { 
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ observation: description }),
+        });
+
+        if (!issueUpdateResponse.ok) {
+          throw new Error('Error al actualizar la observación');
+        }
+
+        setPageIssue(prev => ({
+          ...prev,
+          observation: description
+        }));
+
+        if (onIssueUpdate) {
+          onIssueUpdate({
+            ...pageIssue,
+            observation: description,
+            tags: selectedTags
+          });
+        }
+      }
+
+      if (JSON.stringify(tagIds) !== JSON.stringify(pageIssue.tags.map(tag => tag.tagId))) {
+        const tagsUpdateResponse = await fetch(`http://localhost:7237/api/Tag/AddTagToIssue/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ issueId: pageIssue.issueId, tagsId: tagIds }),
+        });
+
+        if (!tagsUpdateResponse.ok) {
+          throw new Error('Error al actualizar los tags');
+        }
+      }
+
+      setSnackbar({ open: true, severity: 'success', message: 'Issue actualizado con éxito' });
+      setIsEditing(false);
+
     } catch (error) {
-      //turn back the description
-      pageIssue.observation = issue.observation;
-      console.log(issue.observation);
-      console.log(pageIssue.observation);
-      setPageIssue(pageIssue);
-      
-      console.error('Error updating issue:', error);
-      setPopup({ show: true, status: 'error', message: 'Error al modificar la descripción del issue' });
+      console.error(error);
+      setSnackbar({ open: true, severity: 'error', message: 'Error al modificar la descripción y/o los tags del issue' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleOpenAddTagToIssue = () => {
-    setShowModalAddTagToIssue(true);
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setDescription(pageIssue.observation || '');
+    setSelectedTags(pageIssue.tags || []);
   };
 
-  const handleCloseAddTagToIssue = () => {
-    setShowModalAddTagToIssue(false);
-  };
+  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
-  const closePopup = () => {
-    setPopup({ show: false, status: '', message: '' });
-  };
+  const createdAt = dayjs(pageIssue.createdAt);
+  const closedAt = isClosed ? dayjs(pageIssue.closedAt) : null;
+  const resolutionTime = isClosed
+    ? closedAt.from(createdAt)
+    : null;
 
-  return (    
-    <div className={`issue-container ${isLoading ? 'loading' : ''}`}>
-      {showModalAddTagToIssue && (
-        <ModalAddTagToIssue
-          show={showModalAddTagToIssue}
-          onClose={handleCloseAddTagToIssue}
-          issueId={pageIssue.issueId}
-          actualsTags={pageIssue.tags}
-        />
-      )}
+  const simplifiedResolutionTime = resolutionTime ? resolutionTime.replace(/^hace /, '').replace(/^en /, '') : null;
+
+  return (
+    <div className={`issue-container ${isLoading ? 'loading' : ''} ${isClosed ? 'status-closed' : 'status-open'}`}>
       <div className="issue-header">
         <a title='Abrir en GitHub' href={pageIssue.htmlUrl} target="_blank" rel="noopener noreferrer" className="issue-link">
           <h2 className="issue-title">{pageIssue.title}</h2>
         </a>
-        <span className={`issue-status status-${pageIssue.status}`}>
-          {pageIssue.status === 0 ? 'Open' : pageIssue.status === 1 ? 'Closed' : 'All'}
-        </span>
+        <span className="repo-name"><strong><em>{repoName}</em></strong></span>
       </div>
-      <div className="issue-tags">
-        <strong>Tags:</strong>
-          <div className="issue-tags-grid">
-            {pageIssue.tags?.map(tag => (
-              <div key={tag.tagId} className="tag">
-                {tag.name}
-              </div>
-            ))}
-          </div>
+
+      <div className="issue-details-inline">
+        <p><strong>Creado:</strong> {createdAt.format('DD/MM/YYYY HH:mm')}</p>
+        {isClosed && <p><strong>Tiempo de resolución:</strong> {simplifiedResolutionTime}</p>}
+      </div>
+
+      {selectedTags.length > 0 && (
+        <div className="issue-details-inline">
+          <strong>Tags:</strong>
+          {selectedTags.map((tag) => (
+            <Chip key={tag.tagId} label={tag.name} className="tag-chip" size="small" />
+          ))}
         </div>
-      <div className="issue-link-container">        
-      </div>
-      <div className="issue-content">
-        <div className="issue-details">
-          <p className="issue-repo"><strong>Repositorio:</strong> {repoName}</p>
-          <p className="issue-created"><strong>Creado:</strong> {new Date(pageIssue.createdAt).toLocaleDateString()}</p>
-          <p className="issue-closed"><strong>Cerrado:</strong> {pageIssue.closedAt ? new Date(pageIssue.closedAt).toLocaleDateString() : ''}</p>
-          <div className="issue-labels">
-            <p><strong>Labels:</strong></p>
-            <ul>
-              {labelsArray.slice(0, isExpanded ? labelsArray.length : 3).map((label, index) => (
-                <li key={index} className="label">{label}</li>
-              ))}
-            </ul>
-            {labelsArray.length > 3 && (
-              <button onClick={toggleExpand} className="expand-button">
-                {isExpanded ? 'Mostrar menos' : 'Mostrar más'}
-              </button>
-            )}
-          </div>
-        </div>          
-      </div>
-      <div className="issue-description">
-        <label htmlFor={`desc-${pageIssue.issueId}`}><strong>Descripción</strong></label>
-        <textarea
-          id={`desc-${pageIssue.issueId}`}
-          value={description}
-          onChange={handleDescriptionChange}
-          rows="3"
-          className="issue-description-input"
-          disabled={isLoading}
-        />
-      </div>
+      )}
+
+      {labelsArray.length > 0 && (
+        <div className="issue-details-inline">
+          <strong>Labels (GitHub):</strong> {labelsArray.join(', ')}
+        </div>
+      )}
+
+      {!isEditing && pageIssue.observation && (
+        <div className="issue-details-inline">
+          <strong>Observación:</strong><span>{pageIssue.observation}</span>
+        </div>
+      )}
+
       <div className="issue-actions">
         <div className="switch-container">
           <label className="switch">
@@ -156,19 +171,73 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onUpdateIssue }) => {
           </label>
           <span className="switch-text">Descartado</span>
         </div>
-        <button onClick={handleSubmit} className="submit-button" disabled={isLoading}>
-          Modificar
-        </button>
-        <button onClick={handleOpenAddTagToIssue} className="submit-button" disabled={isLoading}>
-          Modificar Tags
+
+        <button onClick={() => setIsEditing(true)} className="submit-button" disabled={isLoading}>
+          Editar
         </button>
       </div>
-      <PopUp
-        status={popup.status}
-        message={popup.message}
-        show={popup.show}
-        onClose={closePopup}
-      />
+
+      {isLoading && (
+        <Box display="flex" justifyContent="center" marginTop="20px">
+          <CircularProgress />
+        </Box>
+      )}
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
+      <Dialog open={isEditing} onClose={handleCancelEdit} maxWidth="md" fullWidth>
+        <DialogTitle>Editar Issue: {pageIssue.title}</DialogTitle>
+        <DialogContent>
+          <div className="edit-form-container">
+            <div className="edit-form-row">
+              <label>Tags:</label>
+              <Autocomplete
+                multiple
+                value={selectedTags}
+                onChange={(event, newValues) => setSelectedTags(newValues)}
+                options={tags || []}
+                getOptionLabel={(tag) => tag?.name || ''}
+                isOptionEqualToValue={(option, value) => option.tagId === value.tagId}
+                renderInput={(params) => (
+                  <TextField {...params} variant="outlined" size="small" />
+                )}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="edit-form-row">
+              <label htmlFor={`desc-${pageIssue.issueId}`}>Observación:</label>
+              <TextField
+                id={`desc-${pageIssue.issueId}`}
+                value={description || ''}
+                onChange={handleDescriptionChange}
+                variant="outlined"
+                rows={1}
+                multiline
+                fullWidth
+                disabled={isLoading}
+                size="small"
+              />
+            </div>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelEdit} color="secondary" disabled={isLoading}>
+            Cancelar
+          </Button>
+          <Button onClick={handleSubmit} color="primary" disabled={isLoading}>
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

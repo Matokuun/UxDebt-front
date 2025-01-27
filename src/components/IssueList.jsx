@@ -1,36 +1,99 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { TextField, FormControl, InputLabel, Select, MenuItem, Autocomplete } from '@mui/material';
+import { DateRangePicker } from '@mui/x-date-pickers-pro';
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { es } from "date-fns/locale/es";
 import useIssue from '../hooks/useIssue';
 import useRepositories from '../hooks/useRepositories';
 import Issue from './Issue';
 import '../styles/IssueList.css';
 import useTag from '../hooks/useTag';
 import PopUp from './PopUp';
+import { debounce } from 'lodash';
 
-const IssueList = () => {
-  const { issues, switchDiscarded, updateIssue, updateFilters} = useIssue();
+const IssueList = ({ refreshTrigger }) => {
+  const { issues, pagination, switchDiscarded, updateIssue, updateFilters } = useIssue();
   const { repositories } = useRepositories();
-  const { tags } = useTag();
-  const [searchTitle, setSearchTitle] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchCreatedAt, setSearchCreatedAt] = useState('');
-  const [searchDiscarded, setSearchDiscarded] = useState('');
-  const [searchStatus, setSearchStatus] = useState('');
-  const [searchLabels, setSearchLabels] = useState([]);
-  const [searchRepository, setSearchRepository] = useState('');
-  const [searchTags, setSearchTags] = useState([]);
-  const [popup, setPopup] = useState({ status:'', show: false, message: '' });
+  const { tags, getTags } = useTag();
+  const [popup, setPopup] = useState({ status: '', show: false, message: '' });
 
-  useEffect(() => {  }, []);
+  const [filters, setFilters] = useState({
+    title: '',
+    dateRange: [null, null],
+    discarded: '',
+    status: '',
+    repository: [],
+    tags: [],
+    orderBy: 'created_at',
+    currentPage: 1
+  });
 
+  const filterParams = useMemo(() => {
+    const [startDate, endDate] = filters.dateRange;
+    return {
+      Title: filters.title || null,
+      startDate: startDate ? startDate.toISOString() : null,
+      endDate: endDate ? endDate.toISOString() : null,
+      Discarded: filters.discarded !== "" ? filters.discarded : null,
+      Status: filters.status !== "" ? filters.status : null,
+      Tags: filters.tags.length > 0 ? filters.tags.map(tag => tag.tagId) : null,
+      RepositoryId: filters.repository.length > 0 ? filters.repository : null,
+      OrderBy: filters.orderBy || 'created_at',
+      pageNumber: filters.currentPage,
+      pageSize: 5,
+    };
+  }, [filters]);
+
+  const debouncedUpdateFilters = useCallback(
+    debounce((params) => {
+      updateFilters(params);
+    }, 500),
+    []
+  );
+
+  useEffect(() => {
+    getTags();
+  }, []);
+
+  useEffect(() => {
+    debouncedUpdateFilters(filterParams);
+  }, [filterParams, debouncedUpdateFilters]);
+
+  useEffect(() => {
+    if (refreshTrigger) {
+      debouncedUpdateFilters(filterParams);
+    }
+  }, [refreshTrigger]);
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value,
+      currentPage: key === 'currentPage' ? value : 1
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      title: '',
+      dateRange: [null, null],
+      discarded: '',
+      status: '',
+      repository: [],
+      tags: [],
+      orderBy: 'created_at',
+      currentPage: 1
+    });
+  };
 
   const handleSwitchDiscarded = async (issueId) => {
     try {
       await switchDiscarded(issueId);
-      setPopup({ show: true, status:'success', message :'El estado del issue fue modificado con exito' })    
-
+      setPopup({ show: true, status: 'success', message: 'El estado del issue fue modificado con éxito' });
     } catch (error) {
-      setPopup({ show: true, status:'error', message :'Error al modificar el estado del issue' })        
-      console.error('Error swiching issue:', error);    
+      setPopup({ show: true, status: 'error', message: 'Error al modificar el estado del issue' });
+      console.error('Error switching issue:', error);
     }
   };
 
@@ -42,59 +105,6 @@ const IssueList = () => {
     }
   };
 
-
-  const handleSearch = () => {
-
-    console.log('searchDiscarded',searchDiscarded);
-    updateFilters({
-      Title: searchTitle.trim() || null,
-      CreatedAt: searchCreatedAt || null,
-      Discarded: searchDiscarded || null,
-      Status: searchStatus !== null && searchStatus !== undefined && searchStatus !== "" ? searchStatus : null,
-      Tags: searchTags.length > 0 ? searchTags : null,
-      Labels: searchLabels.length > 0 ? searchLabels : null,
-      RepositoryId: searchRepository || null,
-      pageNumber: 1
-    });
-    setCurrentPage(1);
-  };
-
-  const handleClearFilters = () => {
-    setSearchTitle('');
-    setSearchCreatedAt('');
-    setSearchDiscarded('');
-    setSearchStatus('');
-    setSearchTags([]);
-    setSearchLabels([]);
-    setSearchRepository('');
-    updateFilters({
-      Title: null,
-      CreatedAt: null,
-      Discarded: null,
-      Status: null,
-      RepositoryId: null,
-      Tags: null,
-      Labels: null,
-      pageNumber: 1
-    });
-    setCurrentPage(1);
-  };
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-    updateFilters({ pageNumber: newPage });
-  };
-
-  const handleTagClick = (tagId) => {
-    setSearchTags((prevTags) => {
-      if (prevTags.includes(tagId)) {
-        return prevTags.filter((id) => id !== tagId);
-      } else {
-        return [...prevTags, tagId];
-      }
-    });
-  };
-
   const closePopup = () => {
     setPopup({ show: false, status: '', message: '' });
   };
@@ -102,93 +112,149 @@ const IssueList = () => {
   return (
     <div className="issue-list-container">
       <h2 className="text-center">Lista de Issues</h2>
+
+
       <div className="search-bar">
         <div className="search-field">
-          <label htmlFor="searchTitle">Buscar por título</label>
-          <input
+          <TextField
             id="searchTitle"
-            type="text"
-            className="search-input"
-            placeholder="Buscar por título"
-            value={searchTitle}
-            onChange={(e) => setSearchTitle(e.target.value)}
+            value={filters.title}
+            onChange={(e) => handleFilterChange('title', e.target.value)}
+            label="Buscar por título"
+            variant="outlined"
+            size="small"
           />
         </div>
+
         <div className="search-field">
-          <label htmlFor="searchDate">Buscar por Fecha</label>
-          <input
-            id="searchDate"
-            type="date"
-            className="search-input"
-            placeholder="Buscar por fecha de creación"
-            value={searchCreatedAt}
-            onChange={(e) => setSearchCreatedAt(e.target.value)}
+          <Autocomplete
+            multiple
+            value={repositories.filter(repo => filters.repository.includes(repo.repositoryId))}
+            onChange={(event, newValues) => handleFilterChange('repository', newValues.map(repo => repo.repositoryId))}
+            options={repositories || []}
+            getOptionLabel={(repo) => repo?.name || ''}
+            isOptionEqualToValue={(option, value) => option.repositoryId === value.repositoryId}
+            renderInput={(params) => <TextField {...params} label="Repositorios" variant="outlined" size="small"/>}
           />
         </div>
+
         <div className="search-field">
-          <label htmlFor="searchDiscarded">Buscar por Descarte</label>
-          <select
-            id="searchDiscarded"
-            className="search-select"
-            value={searchDiscarded}
-            onChange={(e) => setSearchDiscarded(e.target.value)}
-          >
-            <option value="">Todos</option>
-            <option value={true}>Sí</option>
-            <option value={false}>No</option>
-          </select>
+          <Autocomplete
+            multiple
+            id="searchTags"
+            value={filters.tags}
+            onChange={(e, newValue) => handleFilterChange('tags', newValue)}
+            options={tags || []}
+            getOptionLabel={(tag) => tag.name || ''}
+            isOptionEqualToValue={(option, value) => option.tagId === value.tagId}
+            renderInput={(params) => <TextField {...params} label="Buscar por Tags" variant="outlined" size="small" />}
+          />
         </div>
-        <div className="search-field">
-          <label htmlFor="searchStatus">Buscar por Estado</label>
-          <select
-            id="searchStatus"
-            className="search-select"
-            value={searchStatus}
-            onChange={(e) => setSearchStatus(parseInt(e.target.value, 10))} // Convertir el valor a entero
-          >
-            <option value="">Todos</option>
-            <option value="0">Open</option>
-            <option value="1">Closed</option>
-            <option value="2">All</option>
-          </select>
-        </div>
-        <div className="search-field">
-          <label htmlFor="searchRepository">Buscar por Repositorio</label>
-          <select          
-            id="searchRepository"
-            className="search-select"
-            value={searchRepository}
-            onChange={(e) => setSearchRepository(e.target.value)}
-          >
-            <option value={null}>Todos</option>
-            {repositories?.map(repo => (
-              <option 
-                key={repo.repositoryId}
-                value={repo.repositoryId}>{repo.name}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-      <div className="search-field">
-        <label htmlFor="searchTags">Buscar por Tags</label>
-        <div className="issue-tags">
-          {tags?.map(tag => (
-            <div
-              key={tag.tagId}
-              className="tag tag-search"
-              style={{ backgroundColor: searchTags.includes(tag.tagId) ? "#007bff" : "#e0e0e0", cursor: "pointer" }}
-              onClick={() => handleTagClick(tag.tagId)}
+
+        <div className="search-field" style={{ position: 'relative' }}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
+            <DateRangePicker
+              localeText={{ start: 'Fecha inicio', end: 'Fecha fin' }}
+              value={filters.dateRange}
+              onChange={(newValue) => handleFilterChange('dateRange', newValue)}
+              slotProps={{
+                textField: { size: 'small' },
+              }}
+            />
+          </LocalizationProvider>
+          {filters.dateRange[0] || filters.dateRange[1] ? (
+            <button
+              onClick={() => handleFilterChange('dateRange', [null, null])}
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '5px',
+                display: 'flex',
+                alignItems: 'center',
+                color: '#666'
+              }}
             >
-              {tag.name}
-            </div>
-          ))}
+              <svg 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          ) : null}
+        </div>
+
+        <div className="search-field">
+          <FormControl fullWidth size="small">
+            <InputLabel>Buscar por Descarte</InputLabel>
+            <Select
+              value={filters.discarded}
+              label="Buscar por Descarte"
+              onChange={(e) => handleFilterChange('discarded', e.target.value)}
+            >
+              <MenuItem value="">Todos</MenuItem>
+              <MenuItem value={1}>Sí</MenuItem>
+              <MenuItem value={0}>No</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+
+        <div className="search-field">
+          <FormControl fullWidth size="small">
+            <InputLabel>Buscar por Estado</InputLabel>
+            <Select
+              value={filters.status}
+              label="Buscar por Estado"
+              onChange={(e) => handleFilterChange('status', e.target.value)}
+            >
+              <MenuItem value="">Todos</MenuItem>
+              <MenuItem value={1}>Abierto</MenuItem>
+              <MenuItem value={0}>Cerrado</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+
+        <div className="search-field">
+          <FormControl fullWidth size="small">
+            <InputLabel>Ordenar Por</InputLabel>
+            <Select
+              value={filters.orderBy}
+              label="Ordenar Por"
+              onChange={(e) => handleFilterChange('orderBy', e.target.value)}
+            >
+              <MenuItem value="created_at">Fecha Creación (más reciente a más antiguo)</MenuItem>
+              <MenuItem value="-created_at">Fecha Creación (más antiguo a más reciente)</MenuItem>
+              <MenuItem value="title">Título (Orden ascendente)</MenuItem>
+              <MenuItem value="-title">Título (Orden descendente)</MenuItem>
+            </Select>
+          </FormControl>
         </div>
       </div>
-      {/* BUTTONS */}
+
       <div className="search-buttons">
-        <button className="search-button" onClick={handleSearch}>Buscar</button>
-        <button className="search-button" onClick={handleClearFilters}>Limpiar filtros</button>
-      </div>      
+        <button className="search-button" onClick={handleClearFilters}>
+          Limpiar filtros
+        </button>
+      </div>
+
+      <div className="legend">
+        <p style={{ display: 'inline-flex', gap: '10px', alignItems: 'center' }}>
+          <span style={{ backgroundColor: '#28a745', width: '20px', height: '20px', display: 'inline-block', borderRadius: '50%' }}></span> Abierto
+          <span style={{ backgroundColor: '#6f42c1', width: '20px', height: '20px', display: 'inline-block', borderRadius: '50%' }}></span> Cerrado
+        </p>
+      </div>
+
+
       <div className="issue-columns">
         {Array.isArray(issues) && issues.length > 0 ? (
           issues.map((issue) => (
@@ -205,17 +271,39 @@ const IssueList = () => {
           <div className="message no-issues-message">No issues found.</div>
         )}
       </div>
-      <div className="pagination">
-        <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>Anterior</button>
-        <span>{`Página ${currentPage}`}</span>
-        <button onClick={() => handlePageChange(currentPage + 1)}>Siguiente</button>
-      </div>
-      <PopUp 
-        status={popup.status} 
-        message={popup.message} 
-        show={popup.show} 
-        onClose={closePopup}
-      />
+
+      {pagination.totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => handleFilterChange('currentPage', 1)}
+            className={`pagination-button ${filters.currentPage === 1 ? 'active' : ''}`}
+          >
+            1
+          </button>
+          {filters.currentPage > 4 && <span className="pagination-dots">...</span>}
+          {[...Array(5).keys()]
+            .map(offset => filters.currentPage - 3 + offset)
+            .filter(pageNumber => pageNumber > 1 && pageNumber < pagination.totalPages)
+            .map(pageNumber => (
+              <button
+                key={pageNumber}
+                onClick={() => handleFilterChange('currentPage', pageNumber)}
+                className={`pagination-button ${filters.currentPage === pageNumber ? 'active' : ''}`}
+              >
+                {pageNumber}
+              </button>
+            ))}
+          {filters.currentPage < pagination.totalPages - 4 && <span className="pagination-dots">...</span>}
+          <button
+            onClick={() => handleFilterChange('currentPage', pagination.totalPages)}
+            className={`pagination-button ${filters.currentPage === pagination.totalPages ? 'active' : ''}`}
+          >
+            {pagination.totalPages}
+          </button>
+        </div>
+      )}
+
+      <PopUp popup={popup} closePopup={closePopup} />
     </div>
   );
 };

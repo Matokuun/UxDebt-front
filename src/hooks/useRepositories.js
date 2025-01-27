@@ -3,46 +3,40 @@ import { useState, useEffect } from 'react';
 const useRepositories = () => {
   const [repositories, setRepositories] = useState([]);
   const [error, setError] = useState(null);
-  const [downloadStatus, setDownloadStatus] = useState(null); // Download status state
-  const [updateStatus, setUpdateStatus] = useState(null); // Download status state
+  const [downloadStatus, setDownloadStatus] = useState(null);
+  const [updateStatus, setUpdateStatus] = useState(null);
+
+  const fetchRepositories = async () => {
+    try {
+      const response = await fetch("http://localhost:7237/api/Repository/GetAll");
+      const data = await response.json();
+      setRepositories(data);
+    } catch (error) {
+      console.error('Error fetching repositories:', error);
+      setError('Failed to fetch repositories');
+    }
+  };
 
   useEffect(() => {
-    
-    const fetchRepositories = async () => {
-      try {
-        const response = await fetch("https://localhost:7237/api/Repository/GetAll");
-        const data = await response.json();
-        setRepositories(data);
-      } catch (error) {
-        console.error('Error fetching repositories:', error);
-        setError('Failed to fetch repositories');
-      }
-    };
-
     fetchRepositories();
   }, []);
 
   const downloadNewRepository = async (obj) => {
     try {
-      const response = await fetch(`https://localhost:7237/api/Git/DownloadNewRepository/${obj.owner}/${obj.name}`, {
+      const response = await fetch(`http://localhost:7237/api/Git/DownloadNewRepository/${obj.owner}/${obj.name}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      console.log(response.ok);
       if (!response.ok) {
         throw new Error('🪝useRepositories - Network response was not ok');
       }
 
-      // Update download status in state
       setDownloadStatus('Downloading...');
-
-      // Assuming a successful response from the backend
       setDownloadStatus('Download complete!');
-
-      return true; // Indicate successful initiation of the download process
+      return true;
     } catch (error) {
       console.error('🪝useRepositories - Error downloading repository:', error);
       setDownloadStatus('Download failed!');
@@ -50,48 +44,45 @@ const useRepositories = () => {
     }
   };
 
-  const createNewRepository = async (name, owner, gitId, htmlUrl, description) => {
+  const createNewRepository = async (name, owner) => {
     try {
-      const response = await fetch('https://localhost:7237/api/Repository/Create', {
+      const response = await fetch('http://localhost:7237/api/Repository/Create/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name,owner,gitId,htmlUrl,description }),
+        body: JSON.stringify({ name, owner }),
       });
 
-      console.log(response.ok);
       if (!response.ok) {
-        console.log('🪝useRepositories - Network response was not ok');
-        throw new Error(response.messege);
+        const errorData = await response.json();
+        throw new Error(`Error: ${errorData.error}`);
       }
-      return true; // Indicate successful initiation of the download process
+
+      return true;
     } catch (error) {
-      console.error('🪝useRepositories - Error downloading repository:', error);
+      console.error('🪝useRepositories - Error creating repository:', error);
       throw error;
     }
   };
 
   const updateRepository = async (repoId) => {
     try {
-      const response = await fetch(`https://localhost:7237/api/Git/UpdateRepository/${repoId}`, {
+      const response = await fetch(`http://localhost:7237/api/Git/UpdateRepository/${repoId}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
-      if (!response.ok) {
-        throw new Error('🪝useRepositories - Network response was not ok');
+  
+      if (response.ok) {
+        setUpdateStatus('Update successful!');
+        return true;
+      } else {
+        const errorData = await response.json();
+        setUpdateStatus(`Error: ${errorData.error || 'Update failed!'}`);
+        throw new Error(errorData.error || 'Update failed');
       }
-
-      // Update download status in state
-      setUpdateStatus('Updating...');
-
-      // Assuming a successful response from the backend
-      setUpdateStatus('Update complete!');
-
-      return true; // Indicate successful initiation of the download process
     } catch (error) {
       console.error('🪝useRepositories - Error updating repository:', error);
       setUpdateStatus('Update failed!');
@@ -99,7 +90,7 @@ const useRepositories = () => {
     }
   };
 
-  return { repositories, error, downloadNewRepository,createNewRepository, updateRepository, downloadStatus, updateStatus }; // Add downloadStatus to return value
+  return { repositories, error, downloadNewRepository, createNewRepository, updateRepository, downloadStatus, updateStatus, fetchRepositories };
 };
 
 export default useRepositories;

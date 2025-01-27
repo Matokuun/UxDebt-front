@@ -4,12 +4,12 @@
 
 .repository-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Minimo de 300px por tarjeta, ajusta según sea necesario */
-  gap: 20px; /* Espacio entre las tarjetas */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 .repository-card {
-  position: relative; /* Añadir posición relativa para el posicionamiento absoluto del enlace */
+  position: relative;
   background-color: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -19,7 +19,7 @@
 }
 
 .repository-card-content {
-  padding-bottom: 40px; /* Añadir espacio en la parte inferior para el enlace */
+  padding-bottom: 40px;
 }
 
 .repository-card:hover {
@@ -54,9 +54,9 @@
 }
 
 .repository-link {
-  position: absolute; /* Posicionamiento absoluto */
-  bottom: 10px; /* Espaciado desde la parte inferior */
-  left: 10px; /* Espaciado desde la parte izquierda */
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
   
   display: inline-block;
   margin-top: 10px;
@@ -100,7 +100,13 @@
   transition: background-color 0.3s;
 }
 
-.download-repo-button:hover {
+.download-repo-button:disabled {
+  background-color: #5b5e59;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.download-repo-button:hover:enabled {
   background-color: #0e8a12;
 }
 
@@ -139,15 +145,129 @@
   border: 1px solid #bee5eb;
 }
 
-/* Media Query para pantallas más pequeñas */
+.repository-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
 @media (max-width: 768px) {
   .repository-list {
-    grid-template-columns: repeat(3, 1fr); /* Siempre muestra 3 columnas */
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 480px) {
   .repository-list {
-    grid-template-columns: repeat(3, 1fr); /* Siempre muestra 3 columnas */
+    grid-template-columns: 1fr;
   }
+}
+
+.fetch-repos-button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.fetch-repos-button:hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+}
+
+.MuiSelect-root {
+  position: relative;
+  z-index: 100;
+}
+
+.MuiMenu-paper {
+  z-index: 105;
+}
+
+.header-container {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.repository-checkbox {
+  margin-right: 10px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pointer-cursor {
+  cursor: pointer;
+}
+
+.rotate-icon {
+  transform: rotate(90deg);
+  display: inline-block;
+}
+
+.update-selected-button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid #43a047;
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.3s, cursor 0.3s;
+}
+
+.update-selected-button.enabled {
+  background-color: #43a047;
+  color: white;
+  cursor: pointer;
+}
+
+.update-selected-button:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.select-all-button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid #1976d2;
+  background-color: white;
+  color: #1976d2;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.select-all-button.selected {
+  background-color: #1976d2;
+  color: white;
+}
+
+.search-input {
+  width: 700px;
+}
+
+.floating-buttons-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }

@@ -1,0 +1,40 @@
+.config-container {
+  padding: 24px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.config-container h2 {
+  font-size: 2em;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.config-section {
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.token-input {
+  margin-bottom: 20px;
+}
+
+.config-section p {
+  font-size: 1.2em;
+  color: #555;
+}
+
+.config-section a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.config-section a:hover {
+  text-decoration: underline;
+}

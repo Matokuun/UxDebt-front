@@ -6,9 +6,12 @@
   padding: 24px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
+  max-width: 1200px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   transition: box-shadow 0.3s;
   margin-bottom: 16px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .issue-container:hover {
@@ -28,148 +31,15 @@
   font-weight: 600;
 }
 
-.issue-status {
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: bold;
-  text-transform: capitalize;
-}
-
-.status-0 {
-  background-color: #28a745;
-  color: #fff;
-}
-
-.status-1 {
-  background-color: #dc3545;
-  color: #fff;
-}
-
-.status-2 {
-  background-color: #6c757d;
-  color: #fff;
-}
-
 .issue-link {
   text-decoration: none;
 }
 
-.issue-content {
+.issue-details-inline {
   display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  margin-top: 16px;
-}
-
-.issue-details {
-  flex: 1;
-}
-
-.issue-repo,
-.issue-created,
-.issue-closed {
-  margin-bottom: 8px;
-  color: #555;
-}
-
-.issue-labels {
-  margin-top: 12px;
-}
-
-.issue-labels ul {
-  list-style-type: none;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
-}
-
-.label {
-  background-color: #e0e0e0;
-  color: #333;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.9em;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.label:hover {
-  background-color: #c0c0c0;
-  color: #000;
-}
-
-.issue-tags {
-  flex-wrap: wrap;
   margin-top: 12px;
-  margin-right: 30px;
-
-}
-
-.issue-tags-grid {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.tag {
-  background-color: #e0e0e0;
-  color: #333;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 0.9em;
-  display: inline-block;
-  transition: background-color 0.3s, color 0.3s;
-  text-align: center; /* Centra el texto horizontalmente */
-}
-
-
-.tag:hover {
-  background-color: #c0c0c0;
-  color: #000;
-}
-
-.tag-button {
-  padding: 12px 24px; /* Ajusta el relleno para cambiar el tamaño del botón */
-  font-size: 16px;    /* Ajusta el tamaño de la fuente */
-  height: 48px;       /* Ajusta la altura del botón */
-  width: auto;        /* Ajusta el ancho del botón (puedes usar un valor fijo si lo prefieres) */
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 8px; /* Cambia el radio de borde si quieres un estilo más redondeado */
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-
-.tag-button:hover {
-  background-color: #0056b3;
-}
-
-.issue-description {
-  margin-top: 24px;
-  margin-right: 30px;
-
-}
-
-.issue-description label {
-  display: block;
-  margin-bottom: 8px;
-  color: #444;
-  font-weight: 500;
-
-}
-
-.issue-description-input {
-  width: 100%;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 1em;
-  padding: 12px;
-  margin-top: 4px;
-  margin-right: 10px;
-  resize: none;
 }
 
 .issue-actions {
@@ -182,6 +52,46 @@
 .switch-container {
   display: flex;
   align-items: center;
+}
+
+.tag-chip {
+  background-color: #e0f7fa;
+  color: #006064;
+  font-weight: 500;
+}
+
+.issue-tags-grid {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.submit-button, .expand-button, .cancel-button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+}
+
+.submit-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+}
+
+.cancel-button:hover {
+  background-color: #d32f2f;
 }
 
 .switch {
@@ -206,7 +116,7 @@
   bottom: 0;
   background-color: #ccc;
   border-radius: 25px;
-  transition: .4s;
+  transition: 0.4s;
 }
 
 .slider:before {
@@ -218,7 +128,7 @@
   bottom: 2px;
   background-color: white;
   border-radius: 50%;
-  transition: .4s;
+  transition: 0.4s;
 }
 
 input:checked + .slider {
@@ -229,37 +139,136 @@ input:checked + .slider:before {
   transform: translateX(25px);
 }
 
+/* Modal Styles */
+.MuiDialog-paper {
+  max-width: 600px !important;
+  width: 100% !important;
+  margin: 16px;
+}
+
+.MuiDialogTitle-root {
+  background-color: #f5f5f5;
+  padding: 16px 24px !important;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.MuiDialogContent-root {
+  padding: 24px !important;
+}
+
+.edit-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.edit-form-row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.edit-form-row label {
+  font-weight: 500;
+  color: #333;
+  padding-top: 8px;
+}
+
+.edit-form-row .MuiTextField-root {
+  width: 100%;
+  margin: 0;
+}
+
+.edit-form-row .MuiAutocomplete-root {
+  width: 100%;
+}
+
+.MuiDialogActions-root {
+  padding: 16px 24px !important;
+  border-top: 1px solid #e0e0e0;
+}
+
+.MuiButton-root {
+  text-transform: none !important;
+  font-weight: 500 !important;
+  padding: 6px 16px !important;
+}
+
+.MuiAutocomplete-root .MuiInputBase-root {
+  padding: 4px !important;
+}
+
+.MuiAutocomplete-endAdornment {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
 .switch-text {
-  margin-left: 12px;
-  font-size: 1em;
-  color: #555;
+  margin-left: 8px;
+  font-weight: 500;
 }
 
-.submit-button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  font-size: 1em;
+.repo-name {
+  color: #666;
+  font-size: 0.9em;
 }
 
-.submit-button:hover {
-  background-color: #0056b3;
+@media (max-width: 768px) {
+  .issue-container {
+    padding: 16px;
+  }
+
+  .issue-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .issue-title {
+    font-size: 1.5em;
+  }
+
+  .edit-form-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .edit-form-row label {
+    margin-bottom: 4px;
+  }
+
+  .MuiDialog-paper {
+    margin: 8px;
+    max-width: calc(100% - 16px) !important;
+  }
+
+  .MuiDialogTitle-root {
+    padding: 12px 16px !important;
+  }
+
+  .MuiDialogContent-root {
+    padding: 16px !important;
+  }
+
+  .MuiDialogActions-root {
+    padding: 12px 16px !important;
+  }
 }
 
-.expand-button {
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  cursor: pointer;
-  margin-top: 12px;
+.status-open {
+  border-left: 4px solid #28a745;
 }
 
-.expand-button:hover {
-  background-color: #0056b3;
+.status-closed {
+  border-left: 4px solid #6f42c1;
+}
+
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.MuiCircularProgress-root {
+  color: #007bff !important;
 }

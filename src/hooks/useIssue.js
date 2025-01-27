@@ -2,55 +2,94 @@ import { useState, useEffect } from 'react';
 
 export const useIssue = () => {
   const [issues, setIssues] = useState([]);
+  const [allIssues, setAllIssues] = useState([]);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+    totalItems: 0,
+    pageSize: 5
+  });
   const [filters, setFilters] = useState({
-    pageNumber: 1,
-    pageSize: 10,
+    pageSize: 5,
     Title: null,
-    CreatedAt: null,
+    startDate: null,
+    endDate: null,
     Discarded: null,
     Status: null,
     RepositoryId: null,
     Tags: [],
-    Labels: []
+    Labels: [],
+    OrderBy: 'created_at'
   });
 
   useEffect(() => {
-    fetchIssues(filters);
+    fetchIssues(); 
+    fetchAllIssues(); 
   }, [filters]);
 
-  const fetchIssues = async (filters) => {
-    const { pageNumber, pageSize, Title, CreatedAt, Discarded, Status, RepositoryId, Tags, Labels } = filters;
-    try {    
-      
-      let body = {
-        Title: Title || null,
-        CreatedAt,
-        Discarded:  Discarded === null ? null : (Discarded === "true"),
-        Status,
-        RepositoryId,
-        Tags,
-        Labels
-      }                  
-      const response = await fetch(`https://localhost:7237/api/Issue/GetAllByFilter/${pageNumber}/${pageSize}`, {
+  const fetchAllIssues = async () => {
+    try {
+      const response = await fetch('http://localhost:7237/api/Issue/GetAll');
+      const data = await response.json();
+      setAllIssues(data || []);
+    } catch (error) {
+      console.error('🪝useIssue - Error fetching all issues:', error);
+    }
+  };
+
+  const fetchIssues = async () => {
+    const { pageNumber, pageSize, Title, startDate, endDate, Discarded, Status, RepositoryId, Tags, Labels, OrderBy } = filters;
+    
+    const formattedStartDate = startDate ? new Date(startDate).toISOString().split('T')[0] : null;
+    const formattedEndDate = endDate ? new Date(endDate).toISOString().split('T')[0] : null;
+
+    let body = {
+      Title: Title || undefined,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      Discarded,
+      Status,
+      RepositoryId,
+      Tags,
+      Labels,
+      OrderBy,
+      pageNumber,
+      pageSize
+    };
+
+    try {
+      const url = `http://localhost:7237/api/Issue/GetAllByFilter/`;
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
       });
+
       const data = await response.json();
-      setIssues(data.items ? data.items : []);
+
+      setIssues(data.results || []);
+
+      setPagination({
+        totalItems: data.count,
+        currentPage: pageNumber,
+        pageSize: pageSize,
+        hasNext: data.next !== null,
+        hasPrevious: data.previous !== null,
+        totalPages: Math.ceil(data.count / pageSize)
+      });
+
     } catch (error) {
       console.error('🪝useIssue - Error fetching issues:', error);
     }
   };
 
-  //Switch discarded prop 
   const switchDiscarded = async (code) => {
     try {
-
-      console.log(code);
-      const response = await fetch(`https://localhost:7237/api/Issue/SwitchDiscarded/${code}`, {
+      const response = await fetch(`http://localhost:7237/api/Issue/SwitchDiscarded/${code}/`, {
         method: 'POST',
       });
 
@@ -60,15 +99,14 @@ export const useIssue = () => {
       return true;
     } catch (error) {
       console.error('🪝useIssue - Error switching discarded:', error);
-      throw error; // Re-throw the error so it can be handled by the caller
+      throw error;
     }
   };
 
-  //Update Issue
   const updateIssue = async (issueId, updatedIssue) => {
     try {
-      const response = await fetch(`https://localhost:7237/api/Issue/Update/${issueId}`, {
-        method: 'PUT', // Use PUT if the API expects it
+      const response = await fetch(`http://localhost:7237/api/Issue/Update/${issueId}/`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -92,7 +130,6 @@ export const useIssue = () => {
   };
 
   const updateFilters = (newFilters) => {
-    console.log("updateFilters",newFilters);
     setFilters((prevFilters) => ({
       ...prevFilters,
       ...newFilters,
@@ -101,16 +138,23 @@ export const useIssue = () => {
 
   const getIssue = async (id) => {
     try {
-      const response = await fetch(`https://localhost:7237/api/Issue/Get/${id}`);
-      const data = await response.json();   
+      const response = await fetch(`http://localhost:7237/api/Issue/Get/${id}`);
+      const data = await response.json();
       return data;
-
     } catch (error) {
       console.error('Error fetching issue:', error);
     }
   };
 
-  return { issues, switchDiscarded, updateIssue, updateFilters, getIssue};
+  return {
+    issues,
+    allIssues,
+    pagination,
+    switchDiscarded,
+    updateIssue,
+    updateFilters,
+    getIssue
+  };
 };
 
 export default useIssue;

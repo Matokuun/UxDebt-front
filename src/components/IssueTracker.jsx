@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import IssueList from './IssueList';
-import AddTag from './AddTag';
 
 const IssueTracker = () => {
+  const [shouldRefreshTags] = useState(false);
 
   return (
     <div className="IssueTracker-container">      
-      <IssueList/>
-      <AddTag />
+      <IssueList refreshTrigger={shouldRefreshTags} />
     </div>
   );
 };
