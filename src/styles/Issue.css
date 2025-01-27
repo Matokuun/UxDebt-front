@@ -272,3 +272,21 @@ input:checked + .slider:before {
 .MuiCircularProgress-root {
   color: #007bff !important;
 }
+
+.view-on-github-icon {
+  display: inline-block;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.view-on-github-icon:hover {
+  background-color: #0366d6;
+  border-color: #0247a5;
+}
+
+.github-icon {
+  width: 20px;
+  height: 20px;
+}

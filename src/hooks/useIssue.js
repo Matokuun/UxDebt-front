@@ -70,6 +70,7 @@ export const useIssue = () => {
       });
 
       const data = await response.json();
+      console.log('🔍 Respuesta del backend:', data);
 
       setIssues(data.results || []);
 

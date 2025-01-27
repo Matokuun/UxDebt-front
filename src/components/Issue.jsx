@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/Issue.css';
+import gitIcon from '../git_icon.png';
 import useTag from '../hooks/useTag';
 import { Chip, Autocomplete, TextField, CircularProgress, Box, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
 import dayjs from 'dayjs';
@@ -125,9 +126,22 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
   return (
     <div className={`issue-container ${isLoading ? 'loading' : ''} ${isClosed ? 'status-closed' : 'status-open'}`}>
       <div className="issue-header">
-        <a title='Abrir en GitHub' href={pageIssue.htmlUrl} target="_blank" rel="noopener noreferrer" className="issue-link">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <h2 className="issue-title">{pageIssue.title}</h2>
-        </a>
+          <a
+            href={pageIssue.htmlUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="view-on-github-icon"
+            title="Abrir en GitHub"
+          >
+            <img
+              src={gitIcon}
+              alt="GitHub"
+              className="github-icon"
+            />
+          </a>
+        </div>
         <span className="repo-name"><strong><em>{repoName}</em></strong></span>
       </div>
 
