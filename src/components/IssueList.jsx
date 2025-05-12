@@ -11,10 +11,9 @@ import '../styles/IssueList.css';
 import useTag from '../hooks/useTag';
 import PopUp from './PopUp';
 import { debounce } from 'lodash';
-import { green } from '@mui/material/colors';
 
 const IssueList = ({ refreshTrigger }) => {
-  const { issues, pagination, switchDiscarded, updateIssue, updateFilters } = useIssue();
+  const { issues, pagination, switchDiscarded, updateIssue, updateFilters, getExcel } = useIssue();
   const { repositories } = useRepositories();
   const { tags, getTags } = useTag();
   const [popup, setPopup] = useState({ status: '', show: false, message: '' });
@@ -89,16 +88,7 @@ const IssueList = ({ refreshTrigger }) => {
   };
 
   const handleCreateExcel = () => {
-    setFilters({
-      title: '',
-      dateRange: [null, null],
-      discarded: '',
-      status: '',
-      repository: [],
-      tags: [],
-      orderBy: 'created_at',
-      currentPage: 1
-    });
+    getExcel();
   };
 
   const handleSwitchDiscarded = async (issueId) => {

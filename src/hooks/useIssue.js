@@ -170,7 +170,7 @@ export const useIssue = () => {
     };
 
     try{
-      const url = `http://localhost:7237/api/Issue/GetAllByFilter/`;
+      const url = `http://localhost:7237/api/Issue/GetFile/`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -179,8 +179,26 @@ export const useIssue = () => {
         body: JSON.stringify(body),
       });
 
-      const data = await response.json();
-      console.log('🔍 Respuesta del backend:', data);
+      if (!response.ok) {
+      throw new Error('Error al descargar el archivo');
+    }
+
+    const blob = await response.blob();
+    const urlBlob = window.URL.createObjectURL(blob);
+
+    const now = new Date();
+    const pad = (n) => (n < 10 ? '0' + n : n);
+    const formattedDate = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
+    const filename = `issues_${formattedDate}.xlsx`;
+
+    const link = document.createElement('a');
+    link.href = urlBlob;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(urlBlob);
 
     } catch (error){
       console.error("Fallo en frontend: ", error);
