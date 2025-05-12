@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+//import axios from 'axios';
+//import { saveAs } from 'file-saver';
 
 export const useIssue = () => {
   const [issues, setIssues] = useState([]);
@@ -147,6 +149,44 @@ export const useIssue = () => {
     }
   };
 
+  const getExcel = async () => {
+    const { pageNumber, pageSize, Title, startDate, endDate, Discarded, Status, RepositoryId, Tags, Labels, OrderBy } = filters;
+    
+    const formattedStartDate = startDate ? new Date(startDate).toISOString().split('T')[0] : null;
+    const formattedEndDate = endDate ? new Date(endDate).toISOString().split('T')[0] : null;
+
+    let body = {
+      Title: Title || undefined,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      Discarded,
+      Status,
+      RepositoryId,
+      Tags,
+      Labels,
+      OrderBy,
+      pageNumber,
+      pageSize
+    };
+
+    try{
+      const url = `http://localhost:7237/api/Issue/GetAllByFilter/`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+      console.log('🔍 Respuesta del backend:', data);
+
+    } catch (error){
+      console.error("Fallo en frontend: ", error);
+    }
+  };
+
   return {
     issues,
     allIssues,
@@ -154,7 +194,8 @@ export const useIssue = () => {
     switchDiscarded,
     updateIssue,
     updateFilters,
-    getIssue
+    getIssue,
+    getExcel
   };
 };
 

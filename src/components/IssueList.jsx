@@ -11,6 +11,7 @@ import '../styles/IssueList.css';
 import useTag from '../hooks/useTag';
 import PopUp from './PopUp';
 import { debounce } from 'lodash';
+import { green } from '@mui/material/colors';
 
 const IssueList = ({ refreshTrigger }) => {
   const { issues, pagination, switchDiscarded, updateIssue, updateFilters } = useIssue();
@@ -75,6 +76,19 @@ const IssueList = ({ refreshTrigger }) => {
   };
 
   const handleClearFilters = () => {
+    setFilters({
+      title: '',
+      dateRange: [null, null],
+      discarded: '',
+      status: '',
+      repository: [],
+      tags: [],
+      orderBy: 'created_at',
+      currentPage: 1
+    });
+  };
+
+  const handleCreateExcel = () => {
     setFilters({
       title: '',
       dateRange: [null, null],
@@ -244,6 +258,9 @@ const IssueList = ({ refreshTrigger }) => {
       <div className="search-buttons">
         <button className="search-button" onClick={handleClearFilters}>
           Limpiar filtros
+        </button>
+        <button className="download-button" onClick={handleCreateExcel}>
+          Descargar archivo excel
         </button>
       </div>
 
