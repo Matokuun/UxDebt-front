@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+//import axios from 'axios';
+//import { saveAs } from 'file-saver';
 
 export const useIssue = () => {
   const [issues, setIssues] = useState([]);
@@ -147,6 +149,62 @@ export const useIssue = () => {
     }
   };
 
+  const getExcel = async () => {
+    const { pageNumber, pageSize, Title, startDate, endDate, Discarded, Status, RepositoryId, Tags, Labels, OrderBy } = filters;
+    
+    const formattedStartDate = startDate ? new Date(startDate).toISOString().split('T')[0] : null;
+    const formattedEndDate = endDate ? new Date(endDate).toISOString().split('T')[0] : null;
+
+    let body = {
+      Title: Title || undefined,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      Discarded,
+      Status,
+      RepositoryId,
+      Tags,
+      Labels,
+      OrderBy,
+      pageNumber,
+      pageSize
+    };
+
+    try{
+      const url = `http://localhost:7237/api/Issue/GetFile/`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+      throw new Error('Error al descargar el archivo');
+    }
+
+    const blob = await response.blob();
+    const urlBlob = window.URL.createObjectURL(blob);
+
+    const now = new Date();
+    const pad = (n) => (n < 10 ? '0' + n : n);
+    const formattedDate = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
+    const filename = `issues_${formattedDate}.xlsx`;
+
+    const link = document.createElement('a');
+    link.href = urlBlob;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(urlBlob);
+
+    } catch (error){
+      console.error("Fallo en frontend: ", error);
+    }
+  };
+
   return {
     issues,
     allIssues,
@@ -154,7 +212,8 @@ export const useIssue = () => {
     switchDiscarded,
     updateIssue,
     updateFilters,
-    getIssue
+    getIssue,
+    getExcel
   };
 };
 
