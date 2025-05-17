@@ -13,7 +13,7 @@ import PopUp from './PopUp';
 import { debounce } from 'lodash';
 
 const IssueList = ({ refreshTrigger }) => {
-  const { issues, pagination, switchDiscarded, updateIssue, updateFilters, getExcel } = useIssue();
+  const { issues, pagination, switchDiscarded, updateIssue, updateFilters, getFile } = useIssue();
   const { repositories } = useRepositories();
   const { tags, getTags } = useTag();
   const [popup, setPopup] = useState({ status: '', show: false, message: '' });
@@ -87,8 +87,8 @@ const IssueList = ({ refreshTrigger }) => {
     });
   };
 
-  const handleCreateExcel = () => {
-    getExcel();
+  const handleCreateFile = () => {
+    getFile();
   };
 
   const handleSwitchDiscarded = async (issueId) => {
@@ -249,8 +249,8 @@ const IssueList = ({ refreshTrigger }) => {
         <button className="search-button" onClick={handleClearFilters}>
           Limpiar filtros
         </button>
-        <button className="download-button" onClick={handleCreateExcel}>
-          Descargar archivo excel
+        <button className="download-button" onClick={handleCreateFile}>
+          Descargar archivo .csv
         </button>
       </div>
 

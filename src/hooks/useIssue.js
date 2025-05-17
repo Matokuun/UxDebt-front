@@ -149,7 +149,7 @@ export const useIssue = () => {
     }
   };
 
-  const getExcel = async () => {
+  const getFile = async () => {
     const { pageNumber, pageSize, Title, startDate, endDate, Discarded, Status, RepositoryId, Tags, Labels, OrderBy } = filters;
     
     const formattedStartDate = startDate ? new Date(startDate).toISOString().split('T')[0] : null;
@@ -189,7 +189,7 @@ export const useIssue = () => {
     const now = new Date();
     const pad = (n) => (n < 10 ? '0' + n : n);
     const formattedDate = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
-    const filename = `issues_${formattedDate}.xlsx`;
+    const filename = `issues_${formattedDate}.csv`;
 
     const link = document.createElement('a');
     link.href = urlBlob;
@@ -213,7 +213,7 @@ export const useIssue = () => {
     updateIssue,
     updateFilters,
     getIssue,
-    getExcel
+    getFile
   };
 };
 
