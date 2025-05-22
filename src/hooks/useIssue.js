@@ -205,6 +205,30 @@ export const useIssue = () => {
     }
   };
 
+  const addIssues = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("http://localhost:7237/api/Issue/ImportIssues/", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Importación exitosa:", data);
+        alert("¡Issues importados correctamente!");
+      } else {
+        console.error("Error al importar:", data);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
   return {
     issues,
     allIssues,
@@ -213,7 +237,8 @@ export const useIssue = () => {
     updateIssue,
     updateFilters,
     getIssue,
-    getFile
+    getFile,
+    addIssues
   };
 };
 

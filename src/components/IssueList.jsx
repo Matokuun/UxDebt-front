@@ -13,7 +13,7 @@ import PopUp from './PopUp';
 import { debounce } from 'lodash';
 
 const IssueList = ({ refreshTrigger }) => {
-  const { issues, pagination, switchDiscarded, updateIssue, updateFilters, getFile } = useIssue();
+  const { issues, pagination, switchDiscarded, updateIssue, updateFilters, getFile, addIssues } = useIssue();
   const { repositories } = useRepositories();
   const { tags, getTags } = useTag();
   const [popup, setPopup] = useState({ status: '', show: false, message: '' });
@@ -89,6 +89,10 @@ const IssueList = ({ refreshTrigger }) => {
 
   const handleCreateFile = () => {
     getFile();
+  };
+
+  const handleImportIssues = (e) =>{
+    addIssues(e);
   };
 
   const handleSwitchDiscarded = async (issueId) => {
@@ -252,6 +256,7 @@ const IssueList = ({ refreshTrigger }) => {
         <button className="download-button" onClick={handleCreateFile}>
           Descargar archivo .csv
         </button>
+        <input type='file' accept='.csv' onChange={handleImportIssues} />
       </div>
 
       <div className="legend">
