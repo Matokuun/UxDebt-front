@@ -256,7 +256,10 @@ const IssueList = ({ refreshTrigger }) => {
         <button className="download-button" onClick={handleCreateFile}>
           Descargar archivo .csv
         </button>
-        <input type='file' accept='.csv' onChange={handleImportIssues} />
+      </div>
+      <div className="search-buttons">
+        <label htmlFor="input-file" className="label-import">Importar issues (requiere archivo .csv)</label>
+        <input id="input-file" type='file' accept='.csv' onChange={handleImportIssues} />
       </div>
 
       <div className="legend">
