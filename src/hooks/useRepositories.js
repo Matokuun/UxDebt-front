@@ -8,7 +8,7 @@ const useRepositories = () => {
 
   const fetchRepositories = async () => {
     try {
-      const response = await fetch("http://localhost:7237/api/Repository/GetAll");
+      const response = await fetch("http://localhost:8000/api/Repository/GetAll");
       const data = await response.json();
       setRepositories(data);
     } catch (error) {
@@ -23,7 +23,7 @@ const useRepositories = () => {
 
   const downloadNewRepository = async (obj) => {
     try {
-      const response = await fetch(`http://localhost:7237/api/Git/DownloadNewRepository/${obj.owner}/${obj.name}`, {
+      const response = await fetch(`http://localhost:8000/api/Git/DownloadNewRepository/${obj.owner}/${obj.name}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ const useRepositories = () => {
 
   const createNewRepository = async (name, owner) => {
     try {
-      const response = await fetch('http://localhost:7237/api/Repository/Create/', {
+      const response = await fetch('http://localhost:8000/api/Repository/Create/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ const useRepositories = () => {
 
   const updateRepository = async (repoId) => {
     try {
-      const response = await fetch(`http://localhost:7237/api/Git/UpdateRepository/${repoId}/`, {
+      const response = await fetch(`http://localhost:8000/api/Git/UpdateRepository/${repoId}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

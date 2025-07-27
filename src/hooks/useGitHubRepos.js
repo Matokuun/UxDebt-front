@@ -7,7 +7,7 @@ const useGitHubRepos = () => {
 
   const fetchGitHubToken = async () => {
     try {
-      const response = await fetch('http://localhost:7237/api/GitHubToken/');
+      const response = await fetch('http://localhost:8000/api/GitHubToken/');
       if (response.ok) {
         const data = await response.json();
         if (data && data[0] && data[0].token) {

@@ -33,7 +33,7 @@ export const useIssue = () => {
 
   const fetchAllIssues = async () => {
     try {
-      const response = await fetch('http://localhost:7237/api/Issue/GetAll');
+      const response = await fetch('http://localhost:8000/api/Issue/GetAll');
       const data = await response.json();
       setAllIssues(data || []);
     } catch (error) {
@@ -62,7 +62,7 @@ export const useIssue = () => {
     };
 
     try {
-      const url = `http://localhost:7237/api/Issue/GetAllByFilter/`;
+      const url = `http://localhost:8000/api/Issue/GetAllByFilter/`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -92,7 +92,7 @@ export const useIssue = () => {
 
   const switchDiscarded = async (code) => {
     try {
-      const response = await fetch(`http://localhost:7237/api/Issue/SwitchDiscarded/${code}/`, {
+      const response = await fetch(`http://localhost:8000/api/Issue/SwitchDiscarded/${code}/`, {
         method: 'POST',
       });
 
@@ -108,7 +108,7 @@ export const useIssue = () => {
 
   const updateIssue = async (issueId, updatedIssue) => {
     try {
-      const response = await fetch(`http://localhost:7237/api/Issue/Update/${issueId}/`, {
+      const response = await fetch(`http://localhost:8000/api/Issue/Update/${issueId}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ export const useIssue = () => {
 
   const getIssue = async (id) => {
     try {
-      const response = await fetch(`http://localhost:7237/api/Issue/Get/${id}`);
+      const response = await fetch(`http://localhost:8000/api/Issue/Get/${id}`);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -170,7 +170,7 @@ export const useIssue = () => {
     };
 
     try{
-      const url = `http://localhost:7237/api/Issue/GetFile/`;
+      const url = `http://localhost:8000/api/Issue/GetFile/`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -211,7 +211,7 @@ export const useIssue = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://localhost:7237/api/Issue/ImportIssues/", {
+      const response = await fetch("http://localhost:8000/api/Issue/ImportIssues/", {
         method: "POST",
         body: formData,
       });

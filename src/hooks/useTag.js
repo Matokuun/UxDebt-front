@@ -8,7 +8,7 @@ export const useTag = () => {
   const getTags = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:7237/api/Tag/GetAll/');
+      const response = await fetch('http://localhost:8000/api/Tag/GetAll/');
       if (!response.ok) {
         throw new Error('Failed to fetch tags');
       }
@@ -32,7 +32,7 @@ export const useTag = () => {
 
   const addTag = async (tag) => {
     try {
-      const response = await fetch("http://localhost:7237/api/Tag/Create/", {
+      const response = await fetch("http://localhost:8000/api/Tag/Create/", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ export const useTag = () => {
 
   const addTagToIssue = async (tagsId, issueId) => {
     try {
-      const response = await fetch("http://localhost:7237/api/Tag/AddTagToIssue/", {
+      const response = await fetch("http://localhost:8000/api/Tag/AddTagToIssue/", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export const useTag = () => {
 
   const updateTag = async (tag) => {
     try {
-      const response = await fetch(`http://localhost:7237/api/Tag/Update/${tag.id}/`, {
+      const response = await fetch(`http://localhost:8000/api/Tag/Update/${tag.id}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ export const useTag = () => {
 
   const deleteTag = async (tagId) => {
     try {
-      const response = await fetch(`http://localhost:7237/api/Tag/${tagId}`, {
+      const response = await fetch(`http://localhost:8000/api/Tag/${tagId}`, {
         method: 'DELETE',
       });
   

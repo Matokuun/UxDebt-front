@@ -13,7 +13,7 @@ const ConfigPage = () => {
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const response = await fetch('http://localhost:7237/api/GitHubToken/');
+        const response = await fetch('http://localhost:8000/api/GitHubToken/');
         if (response.ok) {
           const data = await response.json();
           if (data && data[0] && data[0].token) {
@@ -40,7 +40,7 @@ const ConfigPage = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:7237/api/GitHubToken/saveToken/', {
+      const response = await fetch('http://localhost:8000/api/GitHubToken/saveToken/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),

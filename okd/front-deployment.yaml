@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ux-painter
+  name: ux-painter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: ux-painter        
+  template:
+    metadata:            
+      labels:
+        app: ux-painter      
+    spec:
+      containers:
+        - name: ux-painter
+          image: jcgardey/ux-analyzer:latest #agregar mi link
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              protocol: TCP

@@ -60,7 +60,7 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
       const isDescriptionEmpty = description.trim() === '';
 
       if (isDescriptionChanged || isDescriptionEmpty) {
-        const issueUpdateResponse = await fetch(`http://localhost:7237/api/Issue/Update/${pageIssue.issueId}/`, { 
+        const issueUpdateResponse = await fetch(`http://localhost:8000/api/Issue/Update/${pageIssue.issueId}/`, { 
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ observation: description }),
@@ -85,7 +85,7 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
       }
 
       if (JSON.stringify(tagIds) !== JSON.stringify(pageIssue.tags.map(tag => tag.tagId))) {
-        const tagsUpdateResponse = await fetch(`http://localhost:7237/api/Tag/AddTagToIssue/`, {
+        const tagsUpdateResponse = await fetch(`http://localhost:8000/api/Tag/AddTagToIssue/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ issueId: pageIssue.issueId, tagsId: tagIds }),
