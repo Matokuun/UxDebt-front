@@ -8,7 +8,9 @@ const useRepositories = () => {
 
   const fetchRepositories = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/Repository/GetAll");
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Repository/GetAll/`
+      );
       const data = await response.json();
       setRepositories(data);
     } catch (error) {
@@ -23,12 +25,15 @@ const useRepositories = () => {
 
   const downloadNewRepository = async (obj) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/Git/DownloadNewRepository/${obj.owner}/${obj.name}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Git/DownloadNewRepository/${obj.owner}/${obj.name}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error('🪝useRepositories - Network response was not ok');
@@ -46,13 +51,16 @@ const useRepositories = () => {
 
   const createNewRepository = async (name, owner) => {
     try {
-      const response = await fetch('http://localhost:8000/api/Repository/Create/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, owner }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Repository/Create/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, owner }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -68,13 +76,16 @@ const useRepositories = () => {
 
   const updateRepository = async (repoId) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/Git/UpdateRepository/${repoId}/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Git/UpdateRepository/${repoId}/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
       if (response.ok) {
         setUpdateStatus('Update successful!');
         return true;
@@ -90,7 +101,16 @@ const useRepositories = () => {
     }
   };
 
-  return { repositories, error, downloadNewRepository, createNewRepository, updateRepository, downloadStatus, updateStatus, fetchRepositories };
+  return {
+    repositories,
+    error,
+    downloadNewRepository,
+    createNewRepository,
+    updateRepository,
+    downloadStatus,
+    updateStatus,
+    fetchRepositories,
+  };
 };
 
 export default useRepositories;

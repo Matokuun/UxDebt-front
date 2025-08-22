@@ -11,7 +11,7 @@ export const useIssue = () => {
     hasNext: false,
     hasPrevious: false,
     totalItems: 0,
-    pageSize: 5
+    pageSize: 5,
   });
   const [filters, setFilters] = useState({
     pageSize: 5,
@@ -23,17 +23,19 @@ export const useIssue = () => {
     RepositoryId: null,
     Tags: [],
     Labels: [],
-    OrderBy: 'created_at'
+    OrderBy: 'created_at',
   });
 
   useEffect(() => {
-    fetchIssues(); 
-    fetchAllIssues(); 
+    fetchIssues();
+    fetchAllIssues();
   }, [filters]);
 
   const fetchAllIssues = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/Issue/GetAll');
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}Issue/GetAll/`
+      );
       const data = await response.json();
       setAllIssues(data || []);
     } catch (error) {
@@ -42,10 +44,26 @@ export const useIssue = () => {
   };
 
   const fetchIssues = async () => {
-    const { pageNumber, pageSize, Title, startDate, endDate, Discarded, Status, RepositoryId, Tags, Labels, OrderBy } = filters;
-    
-    const formattedStartDate = startDate ? new Date(startDate).toISOString().split('T')[0] : null;
-    const formattedEndDate = endDate ? new Date(endDate).toISOString().split('T')[0] : null;
+    const {
+      pageNumber,
+      pageSize,
+      Title,
+      startDate,
+      endDate,
+      Discarded,
+      Status,
+      RepositoryId,
+      Tags,
+      Labels,
+      OrderBy,
+    } = filters;
+
+    const formattedStartDate = startDate
+      ? new Date(startDate).toISOString().split('T')[0]
+      : null;
+    const formattedEndDate = endDate
+      ? new Date(endDate).toISOString().split('T')[0]
+      : null;
 
     let body = {
       Title: Title || undefined,
@@ -58,11 +76,11 @@ export const useIssue = () => {
       Labels,
       OrderBy,
       pageNumber,
-      pageSize
+      pageSize,
     };
 
     try {
-      const url = `http://localhost:8000/api/Issue/GetAllByFilter/`;
+      const url = `${process.env.REACT_APP_API_URL}/Issue/GetAllByFilter/`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -82,9 +100,8 @@ export const useIssue = () => {
         pageSize: pageSize,
         hasNext: data.next !== null,
         hasPrevious: data.previous !== null,
-        totalPages: Math.ceil(data.count / pageSize)
+        totalPages: Math.ceil(data.count / pageSize),
       });
-
     } catch (error) {
       console.error('🪝useIssue - Error fetching issues:', error);
     }
@@ -92,9 +109,12 @@ export const useIssue = () => {
 
   const switchDiscarded = async (code) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/Issue/SwitchDiscarded/${code}/`, {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Issue/SwitchDiscarded/${code}/`,
+        {
+          method: 'POST',
+        }
+      );
 
       if (!response.ok) {
         throw new Error('🪝useIssue - Network response was not ok');
@@ -108,22 +128,23 @@ export const useIssue = () => {
 
   const updateIssue = async (issueId, updatedIssue) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/Issue/Update/${issueId}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedIssue),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Issue/Update/${issueId}/`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedIssue),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('🪝useIssue - Network response was not ok');
       }
 
       setIssues((prevIssues) =>
-        prevIssues.map((i) =>
-          i.issueId === issueId ? updatedIssue : i
-        )
+        prevIssues.map((i) => (i.issueId === issueId ? updatedIssue : i))
       );
       return updatedIssue;
     } catch (error) {
@@ -141,7 +162,9 @@ export const useIssue = () => {
 
   const getIssue = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/Issue/Get/${id}`);
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Issue/Get/${id}`
+      );
       const data = await response.json();
       return data;
     } catch (error) {
@@ -150,10 +173,26 @@ export const useIssue = () => {
   };
 
   const getFile = async () => {
-    const { pageNumber, pageSize, Title, startDate, endDate, Discarded, Status, RepositoryId, Tags, Labels, OrderBy } = filters;
-    
-    const formattedStartDate = startDate ? new Date(startDate).toISOString().split('T')[0] : null;
-    const formattedEndDate = endDate ? new Date(endDate).toISOString().split('T')[0] : null;
+    const {
+      pageNumber,
+      pageSize,
+      Title,
+      startDate,
+      endDate,
+      Discarded,
+      Status,
+      RepositoryId,
+      Tags,
+      Labels,
+      OrderBy,
+    } = filters;
+
+    const formattedStartDate = startDate
+      ? new Date(startDate).toISOString().split('T')[0]
+      : null;
+    const formattedEndDate = endDate
+      ? new Date(endDate).toISOString().split('T')[0]
+      : null;
 
     let body = {
       Title: Title || undefined,
@@ -166,11 +205,11 @@ export const useIssue = () => {
       Labels,
       OrderBy,
       pageNumber,
-      pageSize
+      pageSize,
     };
 
-    try{
-      const url = `http://localhost:8000/api/Issue/GetFile/`;
+    try {
+      const url = `${process.env.REACT_APP_API_URL}/Issue/GetFile/`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -180,54 +219,58 @@ export const useIssue = () => {
       });
 
       if (!response.ok) {
-      throw new Error('Error al descargar el archivo');
-    }
+        throw new Error('Error al descargar el archivo');
+      }
 
-    const blob = await response.blob();
-    const urlBlob = window.URL.createObjectURL(blob);
+      const blob = await response.blob();
+      const urlBlob = window.URL.createObjectURL(blob);
 
-    const now = new Date();
-    const pad = (n) => (n < 10 ? '0' + n : n);
-    const formattedDate = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
-    const filename = `issues_${formattedDate}.csv`;
+      const now = new Date();
+      const pad = (n) => (n < 10 ? '0' + n : n);
+      const formattedDate = `${pad(now.getDate())}-${pad(
+        now.getMonth() + 1
+      )}-${now.getFullYear()}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
+      const filename = `issues_${formattedDate}.csv`;
 
-    const link = document.createElement('a');
-    link.href = urlBlob;
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
+      const link = document.createElement('a');
+      link.href = urlBlob;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
 
-    link.remove();
-    window.URL.revokeObjectURL(urlBlob);
-
-    } catch (error){
-      console.error("Fallo en frontend: ", error);
+      link.remove();
+      window.URL.revokeObjectURL(urlBlob);
+    } catch (error) {
+      console.error('Fallo en frontend: ', error);
     }
   };
 
   const addIssues = async (e) => {
     const file = e.target.files[0];
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append('file', file);
 
     try {
-      const response = await fetch("http://localhost:8000/api/Issue/ImportIssues/", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/Issue/ImportIssues/`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Importación exitosa:", data);
-        alert("¡Issues importados correctamente!");
+        console.log('Importación exitosa:', data);
+        alert('¡Issues importados correctamente!');
       } else {
-        console.error("Error al importar:", data);
+        console.error('Error al importar:', data);
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error('Error:', error);
     }
-  }
+  };
 
   return {
     issues,
@@ -238,7 +281,7 @@ export const useIssue = () => {
     updateFilters,
     getIssue,
     getFile,
-    addIssues
+    addIssues,
   };
 };
 

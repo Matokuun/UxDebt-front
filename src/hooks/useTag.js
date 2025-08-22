@@ -8,7 +8,9 @@ export const useTag = () => {
   const getTags = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/Tag/GetAll/');
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Tag/GetAll/`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch tags');
       }
@@ -32,20 +34,23 @@ export const useTag = () => {
 
   const addTag = async (tag) => {
     try {
-      const response = await fetch("http://localhost:8000/api/Tag/Create/", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(tag),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Tag/Create/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(tag),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
 
       const newTag = await response.json();
-      setTags(prevTags => [...prevTags, newTag]);
+      setTags((prevTags) => [...prevTags, newTag]);
       return newTag;
     } catch (error) {
       console.error('Error creating tag:', error);
@@ -55,13 +60,16 @@ export const useTag = () => {
 
   const addTagToIssue = async (tagsId, issueId) => {
     try {
-      const response = await fetch("http://localhost:8000/api/Tag/AddTagToIssue/", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ tagsId, issueId })
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Tag/AddTagToIssue/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tagsId, issueId }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -77,20 +85,23 @@ export const useTag = () => {
 
   const updateTag = async (tag) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/Tag/Update/${tag.id}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(tag),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Tag/Update/${tag.id}/`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(tag),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to update tag');
       }
 
       const updatedTag = await response.json();
-      
+
       setTags((prevTags) =>
         prevTags.map((t) => (t.id === updatedTag.id ? updatedTag : t))
       );
@@ -103,14 +114,17 @@ export const useTag = () => {
 
   const deleteTag = async (tagId) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/Tag/${tagId}`, {
-        method: 'DELETE',
-      });
-  
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Tag/${tagId}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
       if (!response.ok) {
         throw new Error('Failed to delete tag');
       }
-  
+
       setTags((prevTags) => prevTags.filter((tag) => tag.id !== tagId));
     } catch (error) {
       console.error('Error deleting tag:', error);
@@ -118,7 +132,16 @@ export const useTag = () => {
     }
   };
 
-  return { tags, error, loading, getTags, addTag, addTagToIssue, updateTag, deleteTag };
+  return {
+    tags,
+    error,
+    loading,
+    getTags,
+    addTag,
+    addTagToIssue,
+    updateTag,
+    deleteTag,
+  };
 };
 
 export default useTag;
