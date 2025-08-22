@@ -1,13 +1,13 @@
 kind: Service
 apiVersion: v1
 metadata:  
-  name: ux-painter
+  name: ux-issue-tracker
 spec:
   ports:    
-    - name: ux-painter
+    - name: ux-issue-tracker
       protocol: TCP
-      port: 80
-      targetPort: 80    
+      port: 3000
+      targetPort: 3000    
   selector:
-    app: ux-painter
+    app: ux-issue-tracker
           

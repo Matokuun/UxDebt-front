@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: ux-painter
-  name: ux-painter
+    app: ux-issue-tracker
+  name: ux-issue-tracker
 spec:
   replicas: 1
   selector:
     matchLabels:
-     app: ux-painter        
+     app: ux-issue-tracker        
   template:
     metadata:            
       labels:
-        app: ux-painter      
+        app: ux-issue-tracker      
     spec:
       containers:
-        - name: ux-painter
-          image: jcgardey/ux-analyzer:latest #agregar mi link
+        - name: ux-issue-tracker
+          image: matomaniaco/issue-tracker-front:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 80
+            - containerPort: 3000
               protocol: TCP

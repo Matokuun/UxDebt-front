@@ -1,15 +1,13 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: ux-painter
-  annotations:
-    http://kubernetes.io/tls-acme:'true'
+  name: ux-issue-tracker
 spec:
   rules:
-    - host: ux-painter.okd.lifia.info.unlp.edu.ar
+    - host: ux-issue-tracker.okd.lifia.info.unlp.edu.ar
       http:
         paths:
           - path: /
             backend:
-              serviceName: ux-painter
-              servicePort: 80
+              serviceName: ux-issue-tracker
+              servicePort: 300s0
