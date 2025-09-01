@@ -34,7 +34,7 @@ export const useIssue = () => {
   const fetchAllIssues = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}Issue/GetAll/`
+        `${process.env.REACT_APP_API_URL}/Issue/GetAll/`
       );
       const data = await response.json();
       setAllIssues(data || []);
@@ -252,7 +252,7 @@ export const useIssue = () => {
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/Issue/ImportIssues/`,
+        `${process.env.REACT_APP_API_URL}/Issue/ImportIssues/`,
         {
           method: 'POST',
           body: formData,
