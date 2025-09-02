@@ -11,12 +11,14 @@ import '../styles/IssueList.css';
 import useTag from '../hooks/useTag';
 import PopUp from './PopUp';
 import { debounce } from 'lodash';
+import ManualIssueForm from './ManualIssueForm';
 
 const IssueList = ({ refreshTrigger }) => {
   const { issues, pagination, switchDiscarded, updateIssue, updateFilters, getFile, addIssues } = useIssue();
   const { repositories } = useRepositories();
   const { tags, getTags } = useTag();
   const [popup, setPopup] = useState({ status: '', show: false, message: '' });
+  const [showForm, setShowForm] = useState(false);
 
   const [filters, setFilters] = useState({
     title: '',
@@ -85,6 +87,20 @@ const IssueList = ({ refreshTrigger }) => {
       orderBy: 'created_at',
       currentPage: 1
     });
+  };
+
+  const handleCreateIssue = () => {
+    setShowForm((prev) => !prev); 
+  };
+
+  const handleSuccess = (msg) => {
+    setPopup({ show: true, status: 'success', message: msg });
+    setShowForm(false); 
+    debouncedUpdateFilters(filterParams); 
+  };
+
+  const handleError = (msg) => {
+    setPopup({ show: true, status: 'error', message: msg });
   };
 
   const handleCreateFile = () => {
@@ -260,7 +276,13 @@ const IssueList = ({ refreshTrigger }) => {
       <div className="search-buttons">
         <label htmlFor="input-file" className="label-import">Importar issues (requiere archivo .csv)</label>
         <input id="input-file" type='file' accept='.csv' onChange={handleImportIssues} />
+        <button className="create-button" onClick={handleCreateIssue}>
+          {showForm ? "Cancelar" : "Crear nuevo issue"}
+        </button>
       </div>
+      {showForm && (
+        <ManualIssueForm onSuccess={handleSuccess} onError={handleError} />
+      )}
 
       <div className="legend">
         <p style={{ display: 'inline-flex', gap: '10px', alignItems: 'center' }}>

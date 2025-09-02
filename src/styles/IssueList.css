@@ -106,6 +106,17 @@
   transition: background-color 0.25s ease, transform 0.1s ease;
 }
 
+.create-button {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #8a4496;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.1s ease;
+}
+
 input[type="file"]{
   display: none;
 }
