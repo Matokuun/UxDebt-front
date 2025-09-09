@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Autocomplete, CircularProgress, IconButton, Snackbar, Alert } from '@mui/material';
+import { TextField, Button, Typography, Autocomplete, CircularProgress, IconButton, Snackbar, Alert} from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import '../styles/ModalCreateRepository.css';
 import useRepositories from '../hooks/useRepositories';
@@ -8,6 +8,7 @@ import useGitHubRepos from '../hooks/useGitHubRepos';
 const ModalCreateRepository = ({ onClose, onRepositoryCreated }) => {
   const [name, setName] = useState('');
   const [owner, setOwner] = useState('');
+  const [labels, setLabels] = useState("");
   const [snackbar, setSnackbar] = useState({ show: false, severity: 'success', message: '' });
   const { createNewRepository } = useRepositories();
   const { repos, fetchRepos, error, loading } = useGitHubRepos();
@@ -16,7 +17,7 @@ const ModalCreateRepository = ({ onClose, onRepositoryCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const success = await createNewRepository(name, owner);
+      const success = await createNewRepository(name, owner, labels);
       if (success) {
         setSnackbar({ show: true, severity: 'success', message: 'Repositorio creado con éxito' });
         onRepositoryCreated();
@@ -108,6 +109,16 @@ const ModalCreateRepository = ({ onClose, onRepositoryCreated }) => {
                 className="repo-name-input"
               />
             )}
+          />
+
+          <TextField
+            label="Labels (opcional)"
+            variant="outlined"
+            placeholder="Etiquetas. Ej: bug, ux, performance"
+            value={labels}
+            onChange={(e) => setLabels(e.target.value)}
+            fullWidth
+            className="labels-input"
           />
 
           <div className="button-container">

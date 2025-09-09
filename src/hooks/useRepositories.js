@@ -49,8 +49,9 @@ const useRepositories = () => {
     }
   };
 
-  const createNewRepository = async (name, owner) => {
+  const createNewRepository = async (name, owner, labels) => {
     try {
+      const labelsArray = labels ? labels.split(",").map(l => l.trim()).filter(l => l.length > 0) : [];
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/Repository/Create/`,
         {
@@ -58,7 +59,7 @@ const useRepositories = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ name, owner }),
+          body: JSON.stringify({ name, owner, labels: labelsArray})
         }
       );
 
