@@ -182,6 +182,12 @@ const RepositoryList = () => {
                 <h3 className="repo-name">{repo.name}</h3>
                 <p className="repo-owner"><strong>Owner:</strong> {repo.owner}</p>
                 <p><strong>Git ID:</strong> {repo.gitId}</p>
+                <p>
+                  <strong>Labels del repositorio:</strong>{" "}
+                  {repo.labels && repo.labels.length > 0
+                  ? repo.labels.join(", ")
+                  : "Todos"}
+                </p>
                 <p><strong>Descripcion:</strong> {repo.description ? repo.description : 'Sin descripción'}</p>
               </div>
               <a 
