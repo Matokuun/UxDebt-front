@@ -34,6 +34,10 @@
   margin-bottom: 16px;
 }
 
+.input-label-modal{
+  margin-bottom: 5px;
+}
+
 .button-container {
   display: flex;
   justify-content: space-between;

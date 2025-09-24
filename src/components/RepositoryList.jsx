@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import useRepositories from '../hooks/useRepositories';
 import '../styles/RepositoryList.css';
 import ModalCreateRepository from './ModalCreateRepository';
+import ModalAddLabel from './ModalAddLabel';
 import { Fab, TextField, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -18,6 +19,9 @@ const RepositoryList = () => {
   const reposPerPage = 10;
 
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [isModalOpenLabel, setIsModalOpenLabel] = useState(false);
+  const [selectedRepo, setSelectedRepo] = useState(null);
 
   const filteredRepositories = repositories.filter(repo =>
     repo.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -115,6 +119,21 @@ const RepositoryList = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const handleOpenLabelModal = (repo) => {
+    setSelectedRepo(repo);
+    setIsModalOpenLabel(true);
+  };
+
+  const handleSaveLabel = (repoId, newLabel) => {
+    // Acá podés llamar a tu hook o API para guardar la etiqueta
+    console.log(`Guardar label "${newLabel}" en repo ${repoId}`);
+    // También podrías actualizar el estado local si querés que se refleje de inmediato:
+    // Ejemplo:
+    // setRepositories(prev => prev.map(r => 
+    //   r.repositoryId === repoId ? { ...r, labels: [...(r.labels || []), newLabel] } : r
+    // ));
+  };
+
   return (
     <div className="repository-list-container">
       <h2 className="text-center">Lista de Repositorios</h2>
@@ -184,9 +203,20 @@ const RepositoryList = () => {
                 <p><strong>Git ID:</strong> {repo.gitId}</p>
                 <p>
                   <strong>Labels del repositorio:</strong>{" "}
-                  {repo.labels && repo.labels.length > 0
-                  ? repo.labels.join(", ")
-                  : "Todos"}
+                  {repo.labels && repo.labels.length > 0 ? (
+                    <>
+                      {repo.labels.join(", ")}
+                      <button
+                        className="repository-label-button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenLabelModal(repo);
+                        }}
+                      >
+                        Agregar label
+                      </button>
+                    </>
+                  ) : "Todos"}
                 </p>
                 <p><strong>Descripcion:</strong> {repo.description ? repo.description : 'Sin descripción'}</p>
               </div>
@@ -251,6 +281,14 @@ const RepositoryList = () => {
       <ModalCreateRepository 
         onClose={() => setIsModalOpenCreate(false)}
         onRepositoryCreated={handleRepositoryCreated}
+      />
+      )}
+
+      {isModalOpenLabel && selectedRepo && (
+      <ModalAddLabel
+        repo={selectedRepo}
+        onClose={() => setIsModalOpenLabel(false)}
+        onSave={handleSaveLabel}
       />
       )}
 

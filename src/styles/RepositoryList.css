@@ -53,6 +53,21 @@
   color: #555;
 }
 
+.repository-label-button {
+  display: block;
+  padding: 4px 8px;
+  background-color: #3b7fc7;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  border-color: white;
+  transition: background-color 0.3s;
+}
+
+.repository-label-button:hover {
+  background-color: #007bff;
+}
+
 .repository-link {
   position: absolute;
   bottom: 10px;
