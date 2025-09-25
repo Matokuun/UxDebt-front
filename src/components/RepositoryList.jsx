@@ -125,8 +125,8 @@ const RepositoryList = () => {
   };
 
   const handleSaveLabel = (repo, newLabel) => {
-    console.log(`Guardar label "${newLabel}" en repo ${repo.name} de ${repo.owner}`);
-    addLabel(repo.name, repo.owner, newLabel)
+    console.log(`Guardar label "${newLabel}" en repo ${repo.name} (id= ${repo.repositoryId}) de ${repo.owner}`);
+    addLabel(repo.repositoryId, newLabel)
   };
 
   return (

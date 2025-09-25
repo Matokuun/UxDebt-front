@@ -31,7 +31,10 @@ const ModalAddLabel = ({ onClose, onSave, repo }) => {
             label="Nueva etiqueta"
             variant="outlined"
             value={label}
-            onChange={(e) => setLabel(e.target.value)}
+            onChange={(e) => {
+              const cleanValue = e.target.value.replace(/[.,-_]/g, "");
+              setLabel(cleanValue)
+            }}
             fullWidth
             className="labels-input"
             autoFocus

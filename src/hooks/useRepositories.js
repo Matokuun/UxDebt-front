@@ -102,7 +102,7 @@ const useRepositories = () => {
     }
   };
 
-  const addLabel = async (name, owner, newLabel) => {
+  const addLabel = async (id, newLabel) => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/Repository/AddLabel/`,
@@ -111,7 +111,7 @@ const useRepositories = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({name, owner, newLabel})
+          body: JSON.stringify({id, newLabel})
         }
       );
 
