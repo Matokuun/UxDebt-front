@@ -7,7 +7,7 @@ import { Fab, TextField, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
 const RepositoryList = () => {
-  const { repositories, updateRepository, downloadStatus, updateStatus, fetchRepositories } = useRepositories();
+  const { repositories, updateRepository, downloadStatus, updateStatus, fetchRepositories, addLabel } = useRepositories();
   const [isModalOpenCreate, setIsModalOpenCreate] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'info', message: '' });
   
@@ -124,14 +124,9 @@ const RepositoryList = () => {
     setIsModalOpenLabel(true);
   };
 
-  const handleSaveLabel = (repoId, newLabel) => {
-    // Acá podés llamar a tu hook o API para guardar la etiqueta
-    console.log(`Guardar label "${newLabel}" en repo ${repoId}`);
-    // También podrías actualizar el estado local si querés que se refleje de inmediato:
-    // Ejemplo:
-    // setRepositories(prev => prev.map(r => 
-    //   r.repositoryId === repoId ? { ...r, labels: [...(r.labels || []), newLabel] } : r
-    // ));
+  const handleSaveLabel = (repo, newLabel) => {
+    console.log(`Guardar label "${newLabel}" en repo ${repo.name} de ${repo.owner}`);
+    addLabel(repo.name, repo.owner, newLabel)
   };
 
   return (
@@ -288,7 +283,7 @@ const RepositoryList = () => {
       <ModalAddLabel
         repo={selectedRepo}
         onClose={() => setIsModalOpenLabel(false)}
-        onSave={handleSaveLabel}
+        onSave={(repo, newLabel) => handleSaveLabel(repo, newLabel)}
       />
       )}
 

@@ -12,7 +12,7 @@ const ModalAddLabel = ({ onClose, onSave, repo }) => {
       setSnackbar({ open: true, severity: 'warning', message: 'Ingrese una etiqueta' });
       return;
     }
-    onSave(repo.repositoryId, label);
+    onSave(repo, label);
     setLabel('');
     setSnackbar({ open: true, severity: 'success', message: 'Etiqueta agregada con éxito' });
     setTimeout(() => onClose(), 1000);

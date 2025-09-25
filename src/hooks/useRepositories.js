@@ -102,6 +102,31 @@ const useRepositories = () => {
     }
   };
 
+  const addLabel = async (name, owner, newLabel) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/Repository/AddLabel/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({name, owner, newLabel})
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Error: ${errorData.error}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('🪝useRepositories - Error adding label:', error);
+      throw error;
+    }
+  };
+
   return {
     repositories,
     error,
@@ -111,6 +136,7 @@ const useRepositories = () => {
     downloadStatus,
     updateStatus,
     fetchRepositories,
+    addLabel
   };
 };
 
