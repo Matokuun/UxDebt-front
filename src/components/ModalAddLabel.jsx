@@ -32,7 +32,7 @@ const ModalAddLabel = ({ onClose, onSave, repo }) => {
             variant="outlined"
             value={label}
             onChange={(e) => {
-              const cleanValue = e.target.value.replace(/[.,-_]/g, "");
+              const cleanValue = e.target.value.replace(/[.,-_\s]/g, "");
               setLabel(cleanValue)
             }}
             fullWidth

@@ -7,7 +7,7 @@ import { Fab, TextField, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
 const RepositoryList = () => {
-  const { repositories, updateRepository, downloadStatus, updateStatus, fetchRepositories, addLabel } = useRepositories();
+  const { repositories, updateRepository, fetchRepositories, addLabel } = useRepositories();
   const [isModalOpenCreate, setIsModalOpenCreate] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'info', message: '' });
   
@@ -48,7 +48,8 @@ const RepositoryList = () => {
     try {
       const result = await updateRepository(repositoryId);
       if (result) {
-        setSnackbar({ open: true, severity: 'success', message: 'Repositorio actualizado con éxito' });
+        console.log(result.new_issues);
+        setSnackbar({ open: true, severity: 'success', message: `Repositorio actualizado con éxito: ${result.new_issues} issues nuevos` });
       }
     } catch (error) {
       setSnackbar({ open: true, severity: 'error', message: 'Error al actualizar el repositorio' });
@@ -112,7 +113,9 @@ const RepositoryList = () => {
     setCurrentPage(1);
     setSearchTerm('');
     setIsModalOpenCreate(false);
-    setSnackbar({ open: true, severity: 'success', message: 'Repositorio creado con éxito' });
+    const newIssues = localStorage.getItem('new_issues') || 0;
+    setSnackbar({ open: true, severity: 'success', message: `Repositorio creado con éxito: ${newIssues} issues nuevos` });
+    localStorage.removeItem('new_issues');
   };
 
   const handleCloseSnackbar = () => {
@@ -159,9 +162,6 @@ const RepositoryList = () => {
           </button>
         </div>
       </div>
-
-      {downloadStatus && <div className="status-message">{downloadStatus}</div>}
-      {updateStatus && <div className="status-message">{updateStatus}</div>}
 
       {filteredRepositories.length === 0 ? (
         <div className="message no-repos-message">No se encontraron repositorios.</div>

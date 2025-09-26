@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react';
 const useRepositories = () => {
   const [repositories, setRepositories] = useState([]);
   const [error, setError] = useState(null);
-  const [downloadStatus, setDownloadStatus] = useState(null);
-  const [updateStatus, setUpdateStatus] = useState(null);
 
   const fetchRepositories = async () => {
     try {
@@ -39,12 +37,9 @@ const useRepositories = () => {
         throw new Error('🪝useRepositories - Network response was not ok');
       }
 
-      setDownloadStatus('Downloading...');
-      setDownloadStatus('Download complete!');
       return true;
     } catch (error) {
       console.error('🪝useRepositories - Error downloading repository:', error);
-      setDownloadStatus('Download failed!');
       throw error;
     }
   };
@@ -62,13 +57,15 @@ const useRepositories = () => {
           body: JSON.stringify({ name, owner, labels: labelsArray})
         }
       );
-
+      const result = await response.json();
+      console.log(result.new_issues);
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Error: ${errorData.error}`);
+        throw new Error(`Error: ${result.error}`);
       }
 
-      return true;
+      localStorage.setItem('new_issues', result.new_issues || 0);
+
+      return result;
     } catch (error) {
       console.error('🪝useRepositories - Error creating repository:', error);
       throw error;
@@ -87,17 +84,15 @@ const useRepositories = () => {
         }
       );
 
+      const result= await response.json();
+
       if (response.ok) {
-        setUpdateStatus('Update successful!');
-        return true;
+        return result;
       } else {
-        const errorData = await response.json();
-        setUpdateStatus(`Error: ${errorData.error || 'Update failed!'}`);
-        throw new Error(errorData.error || 'Update failed');
+        throw new Error(result.error || 'Update failed');
       }
     } catch (error) {
       console.error('🪝useRepositories - Error updating repository:', error);
-      setUpdateStatus('Update failed!');
       throw error;
     }
   };
@@ -133,8 +128,6 @@ const useRepositories = () => {
     downloadNewRepository,
     createNewRepository,
     updateRepository,
-    downloadStatus,
-    updateStatus,
     fetchRepositories,
     addLabel
   };

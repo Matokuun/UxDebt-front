@@ -13,9 +13,11 @@ const ModalCreateRepository = ({ onClose, onRepositoryCreated }) => {
   const { createNewRepository } = useRepositories();
   const { repos, fetchRepos, error, loading } = useGitHubRepos();
   const [searchClicked, setSearchClicked] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsCreating(true);
     try {
       const success = await createNewRepository(name, owner, labels);
       if (success) {
@@ -25,6 +27,8 @@ const ModalCreateRepository = ({ onClose, onRepositoryCreated }) => {
       }
     } catch (error) {
       setSnackbar({ show: true, severity: 'error', message: error.message || 'Error al crear el repositorio' });
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -122,8 +126,15 @@ const ModalCreateRepository = ({ onClose, onRepositoryCreated }) => {
           />
 
           <div className="button-container">
-            <Button variant="contained" color="primary" type="submit" disabled={isSubmitDisabled} className="create-repo-button">
-              Crear
+            <Button variant="contained" color="primary" type="submit" disabled={isSubmitDisabled || isCreating} className="create-repo-button">
+              {isCreating ? (
+                <>
+                  <CircularProgress size={20} color="inherit" style={{ marginRight: 8 }} />
+                  Creando...
+                </>
+              ) : (
+                'Crear'
+              )}
             </Button>
             <Button variant="contained" color="error" onClick={onClose} className="close-button">
               Cerrar
