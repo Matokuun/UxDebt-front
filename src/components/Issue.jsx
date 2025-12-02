@@ -36,6 +36,9 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
   });
   const [pageIssue, setPageIssue] = useState(issue);
   const [selectedTags, setSelectedTags] = useState(issue.tags || []);
+  const predicted = pageIssue.predicted_tags || [];
+  const primary = predicted.find(p => p.rank === 1);
+  const secondary = predicted.find(p => p.rank === 2);
   const labelsArray = issue.labels
     ? issue.labels.split(',').map((label) => label.trim())
     : [];
@@ -224,7 +227,29 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
           <span>{pageIssue.observation}</span>
         </div>
       )}
+      
+      {primary && (
+        <div className="issue-details-inline">
+          <strong>Predicción modelo:</strong>
+          <Chip
+            label={`${primary.tag.name} (${(primary.confidence * 100).toFixed(1)}%)`}
+            size="small"
+            sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 'bold' }}
+          />
+        </div>
+      )}
 
+      {secondary && (
+        <div className="issue-details-inline">
+          <strong>2da Predicción:</strong>
+          <Chip
+            label={`${secondary.tag.name} (${(secondary.confidence * 100).toFixed(1)}%)`}
+            size="small"
+            sx={{ backgroundColor: '#9c27b0', color: 'white', fontWeight: 'bold' }}
+          />
+        </div>
+      )}
+      
       <div className="issue-actions">
         <div className="switch-container">
           <label className="switch">
