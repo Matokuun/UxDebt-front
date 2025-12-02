@@ -14,7 +14,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Button,
+  Button
 } from '@mui/material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
@@ -156,6 +156,71 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
 
   const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
+  const handleApplyPredictedTag = async (predicted) => {
+    if (!predicted || !predicted.tag) return;
+
+    // Si ya tiene el tag, avisamos y no hacemos nada
+    if (selectedTags.some(t => t.tagId === predicted.tag.tagId)) {
+      setSnackbar({
+        open: true,
+        severity: 'info',
+        message: 'El issue ya tiene este Tag aplicado',
+      });
+      return;
+    }
+
+    // Agregar el tag a los seleccionados
+    const newTags = [...selectedTags, predicted.tag];
+    setSelectedTags(newTags);
+
+    try {
+      setIsLoading(true);
+
+      const tagIds = newTags.map(t => t.tagId);
+
+      const tagsUpdateResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/Tag/AddTagToIssue/`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            issueId: pageIssue.issueId,
+            tagsId: tagIds,
+          }),
+        }
+      );
+
+      if (!tagsUpdateResponse.ok) {
+        throw new Error('Error al aplicar el Tag');
+      }
+
+      // Actualiza estado del issue sin recargar
+      const updatedIssue = {
+        ...pageIssue,
+        tags: newTags,
+      };
+      setPageIssue(updatedIssue);
+
+      if (onIssueUpdate) onIssueUpdate(updatedIssue);
+
+      setSnackbar({
+        open: true,
+        severity: 'success',
+        message: `Tag "${predicted.tag.name}" aplicado con éxito`,
+      });
+
+    } catch (error) {
+      console.error(error);
+      setSnackbar({
+        open: true,
+        severity: 'error',
+        message: 'Error al aplicar el Tag',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const createdAt = dayjs(pageIssue.createdAt);
   const closedAt = isClosed ? dayjs(pageIssue.closedAt) : null;
   const resolutionTime = isClosed ? closedAt.from(createdAt) : null;
@@ -229,24 +294,58 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
       )}
       
       {primary && (
-        <div className="issue-details-inline">
+        <div className="issue-details-inline" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <strong>Predicción modelo:</strong>
           <Chip
             label={`${primary.tag.name} (${(primary.confidence * 100).toFixed(1)}%)`}
             size="small"
             sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 'bold' }}
           />
+
+          <Button
+            variant="contained"
+            size="small"
+            sx={{
+              bgcolor: '#1e3a8a',
+              '&:hover': { bgcolor: '#172554' },
+              color: 'white',
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontWeight: 600,
+              px: 1.5,
+            }}
+            onClick={() => handleApplyPredictedTag(primary)}
+          >
+            Aplicar Tag
+          </Button>
         </div>
       )}
 
       {secondary && (
-        <div className="issue-details-inline">
+        <div className="issue-details-inline" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <strong>2da Predicción:</strong>
           <Chip
             label={`${secondary.tag.name} (${(secondary.confidence * 100).toFixed(1)}%)`}
             size="small"
             sx={{ backgroundColor: '#9c27b0', color: 'white', fontWeight: 'bold' }}
           />
+
+          <Button
+            variant="contained"
+            size="small"
+            sx={{
+              bgcolor: '#424242',
+              '&:hover': { bgcolor: '#333333' },
+              color: 'white',
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontWeight: 600,
+              px: 1.5,
+            }}
+            onClick={() => handleApplyPredictedTag(secondary)}
+          >
+            Aplicar Tag
+          </Button>
         </div>
       )}
       
