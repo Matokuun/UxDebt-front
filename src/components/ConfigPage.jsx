@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../styles/ConfigPage.css';
 import { TextField, Button, Snackbar, Alert, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import { authFetch } from '../utils/authFetch';
 
 const ConfigPage = () => {
   const [token, setToken] = useState('');
@@ -17,7 +18,7 @@ const ConfigPage = () => {
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const response = await fetch(
+        const response = await authFetch(
           `${process.env.REACT_APP_API_URL}/GitHubToken/`
         );
         if (response.ok) {
@@ -50,7 +51,7 @@ const ConfigPage = () => {
     }
 
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/GitHubToken/saveToken/`,
         {
           method: 'POST',

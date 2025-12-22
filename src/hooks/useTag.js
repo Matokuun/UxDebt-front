@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { authFetch } from '../utils/authFetch';
 
 export const useTag = () => {
   const [tags, setTags] = useState([]);
@@ -8,7 +9,7 @@ export const useTag = () => {
   const getTags = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Tag/GetAll/`
       );
       if (!response.ok) {
@@ -34,7 +35,7 @@ export const useTag = () => {
 
   const addTag = async (tag) => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Tag/Create/`,
         {
           method: 'POST',
@@ -60,7 +61,7 @@ export const useTag = () => {
 
   const addTagToIssue = async (tagsId, issueId) => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Tag/AddTagToIssue/`,
         {
           method: 'POST',
@@ -85,7 +86,7 @@ export const useTag = () => {
 
   const updateTag = async (tag) => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Tag/Update/${tag.id}/`,
         {
           method: 'PUT',
@@ -114,7 +115,7 @@ export const useTag = () => {
 
   const deleteTag = async (tagId) => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Tag/${tagId}`,
         {
           method: 'DELETE',

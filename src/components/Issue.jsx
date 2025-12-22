@@ -19,6 +19,7 @@ import {
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { authFetch } from '../utils/authFetch';
 
 dayjs.extend(relativeTime);
 dayjs.locale('es');
@@ -82,7 +83,7 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
       const isDescriptionEmpty = description.trim() === '';
 
       if (isDescriptionChanged || isDescriptionEmpty) {
-        const issueUpdateResponse = await fetch(
+        const issueUpdateResponse = await authFetch(
           `${process.env.REACT_APP_API_URL}/Issue/Update/${pageIssue.issueId}/`,
           {
             method: 'PUT',
@@ -113,7 +114,7 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
         JSON.stringify(tagIds) !==
         JSON.stringify(pageIssue.tags.map((tag) => tag.tagId))
       ) {
-        const tagsUpdateResponse = await fetch(
+        const tagsUpdateResponse = await authFetch(
           `${process.env.REACT_APP_API_URL}/Tag/AddTagToIssue/`,
           {
             method: 'POST',
@@ -178,7 +179,7 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
 
       const tagIds = newTags.map(t => t.tagId);
 
-      const tagsUpdateResponse = await fetch(
+      const tagsUpdateResponse = await authFetch(
         `${process.env.REACT_APP_API_URL}/Tag/AddTagToIssue/`,
         {
           method: 'POST',

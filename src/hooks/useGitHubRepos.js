@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { authFetch } from '../utils/authFetch';
 
 const useGitHubRepos = () => {
   const [repos, setRepos] = useState([]);
@@ -7,19 +8,16 @@ const useGitHubRepos = () => {
 
   const fetchGitHubToken = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/GitHubToken/`
+      const response = await authFetch(
+        `${process.env.REACT_APP_API_URL}/GitHubToken/getToken/`
       );
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data[0] && data[0].token) {
-          return data[0].token;
-        } else {
-          throw new Error('No se encontró el token en la base de datos.');
-        }
-      } else {
-        throw new Error('Error al obtener el token de la base de datos.');
+
+      if (!response.ok) {
+        throw new Error('Error al obtener el token.');
       }
+
+      const data = await response.json();
+      return data.token;
     } catch (err) {
       setError(err.message);
       return null;
@@ -29,57 +27,34 @@ const useGitHubRepos = () => {
   const fetchRepos = async (username) => {
     if (!username) {
       setError('El nombre de usuario no puede estar vacío.');
-      setRepos([]);
       return;
     }
 
-    const token = await fetchGitHubToken();
-    if (!token) {
-      setError('No se pudo obtener el token de GitHub.');
-      return;
-    }
-
-    const perPage = 100;
-    let page = 1;
-    let allRepos = [];
+    const tokenGitHub = await fetchGitHubToken();
+    if (!tokenGitHub) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      while (true) {
-        const response = await fetch(
-          `https://api.github.com/users/${username}/repos?per_page=${perPage}&page=${page}`,
-          {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        if (response.status === 404) {
-          throw new Error(`El usuario "${username}" no fue encontrado.`);
+      const response = await fetch(
+        `https://api.github.com/users/${username}/repos`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenGitHub}`,
+          },
         }
+      );
 
-        if (!response.ok) {
-          throw new Error(
-            `Error al obtener repositorios del usuario "${username}".`
-          );
-        }
-
-        const data = await response.json();
-        if (data.length === 0) break;
-
-        allRepos = [...allRepos, ...data];
-        page += 1;
+      if (!response.ok) {
+        throw new Error('Error al obtener repositorios.');
       }
 
-      setRepos(allRepos.map((repo) => repo.name));
+      const data = await response.json();
+      setRepos(data.map(repo => repo.name));
     } catch (err) {
-      setRepos([]);
       setError(err.message);
+      setRepos([]);
     } finally {
       setLoading(false);
     }

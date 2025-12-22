@@ -6,24 +6,59 @@ import RepositoryList from './components/RepositoryList';
 import NotFound from './components/NotFound';
 import TagsPage from './components/TagsPage';
 import ConfigPage from './components/ConfigPage';
-
+import { AuthProvider } from './components/AuthContext';
+import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
+import PrivateRoute from './components/PrivateRoute';
 import './App.css';
 
 function App() {
   return (
-    <Router>
-      <div className="App-container">
-        <Header />
-        <Routes>
-          <Route path="/" element={<Navigate replace to="/Issues" />} />
-          <Route path="/Issues" element={<IssueTracker />} />
-          <Route path="/repositories" element={<RepositoryList />} />
-          <Route path="/tags" element={<TagsPage />} />
-          <Route path="/configuracion" element={<ConfigPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div className="App-container">
+          <Header />
+          <Routes>
+            <Route path="/" element={<Navigate replace to="/Issues" />} />
+            <Route
+              path="/Issues"
+              element={
+                <PrivateRoute>
+                  <IssueTracker />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/repositories"
+              element={
+                <PrivateRoute>
+                  <RepositoryList />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/tags"
+              element={
+                <PrivateRoute>
+                  <TagsPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/configuracion"
+              element={
+                <PrivateRoute>
+                  <ConfigPage />
+                </PrivateRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

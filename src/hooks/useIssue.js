@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { authFetch } from '../utils/authFetch';
 //import axios from 'axios';
 //import { saveAs } from 'file-saver';
 
@@ -33,7 +34,7 @@ export const useIssue = () => {
 
   const fetchAllIssues = async () => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Issue/GetAll/`
       );
       const data = await response.json();
@@ -81,7 +82,7 @@ export const useIssue = () => {
 
     try {
       const url = `${process.env.REACT_APP_API_URL}/Issue/GetAllByFilter/`;
-      const response = await fetch(url, {
+      const response = await authFetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,7 +110,7 @@ export const useIssue = () => {
 
   const switchDiscarded = async (code) => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Issue/SwitchDiscarded/${code}/`,
         {
           method: 'POST',
@@ -128,7 +129,7 @@ export const useIssue = () => {
 
   const updateIssue = async (issueId, updatedIssue) => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Issue/Update/${issueId}/`,
         {
           method: 'PUT',
@@ -162,7 +163,7 @@ export const useIssue = () => {
 
   const getIssue = async (id) => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Issue/Get/${id}`
       );
       const data = await response.json();
@@ -210,7 +211,7 @@ export const useIssue = () => {
 
     try {
       const url = `${process.env.REACT_APP_API_URL}/Issue/GetFile/`;
-      const response = await fetch(url, {
+      const response = await authFetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -251,7 +252,7 @@ export const useIssue = () => {
     formData.append('file', file);
 
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Issue/ImportIssues/`,
         {
           method: 'POST',

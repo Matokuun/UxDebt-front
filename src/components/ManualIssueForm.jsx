@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, Box } from '@mui/material';
+import { authFetch } from '../utils/authFetch';
 
 const ManualIssueForm = ({ onSuccess, onError }) => {
   const [title, setTitle] = useState('');
@@ -12,7 +13,7 @@ const ManualIssueForm = ({ onSuccess, onError }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/Issue/newIssue/`, {
+      const response = await authFetch(`${process.env.REACT_APP_API_URL}/Issue/newIssue/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, body, tag }),

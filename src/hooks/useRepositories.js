@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { authFetch } from '../utils/authFetch';
 
 const useRepositories = () => {
   const [repositories, setRepositories] = useState([]);
@@ -6,7 +7,7 @@ const useRepositories = () => {
 
   const fetchRepositories = async () => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Repository/GetAll/`
       );
       const data = await response.json();
@@ -23,7 +24,7 @@ const useRepositories = () => {
 
   const downloadNewRepository = async (obj) => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Git/DownloadNewRepository/${obj.owner}/${obj.name}`,
         {
           method: 'POST',
@@ -47,7 +48,7 @@ const useRepositories = () => {
   const createNewRepository = async (name, owner, labels) => {
     try {
       const labelsArray = labels ? labels.split(",").map(l => l.trim()).filter(l => l.length > 0) : [];
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Repository/Create/`,
         {
           method: 'POST',
@@ -74,7 +75,7 @@ const useRepositories = () => {
 
   const updateRepository = async (repoId) => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Git/UpdateRepository/${repoId}/`,
         {
           method: 'POST',
@@ -99,7 +100,7 @@ const useRepositories = () => {
 
   const addLabel = async (id, newLabel) => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.REACT_APP_API_URL}/Repository/AddLabel/`,
         {
           method: 'POST',

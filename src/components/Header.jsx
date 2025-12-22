@@ -1,8 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import '../styles/Header.css';
+import { useContext } from 'react';
+import { AuthContext } from '../components/AuthContext';
 
 const Header = () => {
+  const { isAuthenticated, logout } = useContext(AuthContext);
+
   return (
     <header className="page-header">
       <div className="logo-text">
@@ -28,6 +32,14 @@ const Header = () => {
         <NavLink to="/configuracion" className={({ isActive }) => (isActive ? 'active' : '')}>
           Configuración
         </NavLink>
+        {!isAuthenticated ? (
+          <>
+            <NavLink to="/login">Iniciar sesión</NavLink>
+            <NavLink to="/register">Registrarse</NavLink>
+          </>
+        ) : (
+          <NavLink to="/login" onClick={logout}>Cerrar sesión</NavLink>
+        )}
       </nav>
     </header>
   );
