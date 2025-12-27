@@ -10,6 +10,7 @@ import { AuthProvider } from './components/AuthContext';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import PrivateRoute from './components/PrivateRoute';
+import Projects from './components/Projects';
 import './App.css';
 
 function App() {
@@ -49,6 +50,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <ConfigPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/projects"
+              element={
+                <PrivateRoute>
+                  <Projects />
                 </PrivateRoute>
               }
             />

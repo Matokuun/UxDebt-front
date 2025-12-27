@@ -98,3 +98,10 @@
 .error-message.show, .repos-found-message.show {
   opacity: 1;
 }
+
+.info-text {
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: -12px;
+  margin-bottom: 12px;
+}

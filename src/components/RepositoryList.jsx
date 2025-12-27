@@ -24,8 +24,11 @@ const RepositoryList = () => {
   const [selectedRepo, setSelectedRepo] = useState(null);
 
   const filteredRepositories = repositories.filter(repo =>
-    repo.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    repo.owner.toLowerCase().includes(searchTerm.toLowerCase())
+    !['manual-issues', 'github-projects'].includes(repo.name.toLowerCase()) &&
+    (
+      repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      repo.owner.toLowerCase().includes(searchTerm.toLowerCase())
+    )
   );
 
   const indexOfLastRepo = currentPage * reposPerPage;

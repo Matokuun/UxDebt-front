@@ -287,6 +287,19 @@ const Issue = ({ issue, repoName, onSwitchDiscarded, onIssueUpdate }) => {
         </div>
       )}
 
+      {issue.projects && issue.projects.length > 0 && (
+        <div className="issue-details-inline">
+          <strong>Proyecto:</strong>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {issue.projects.map((p) => (
+              <span key={p.projectId}>
+                <strong>{p.projectName}</strong> — Estado: <em>{p.status}</em>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {!isEditing && pageIssue.observation && (
         <div className="issue-details-inline">
           <strong>Observación:</strong>

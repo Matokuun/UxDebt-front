@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef  } from 'react';
 import { TextField, FormControl, InputLabel, Select, MenuItem, Autocomplete } from '@mui/material';
 import { DateRangePicker } from '@mui/x-date-pickers-pro';
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
@@ -12,6 +12,7 @@ import useTag from '../hooks/useTag';
 import PopUp from './PopUp';
 import { debounce } from 'lodash';
 import ManualIssueForm from './ManualIssueForm';
+import useProjects from '../hooks/useProjects';
 
 const IssueList = ({ refreshTrigger }) => {
   const { issues, pagination, switchDiscarded, updateIssue, updateFilters, getFile, addIssues } = useIssue();
@@ -19,7 +20,7 @@ const IssueList = ({ refreshTrigger }) => {
   const { tags, getTags } = useTag();
   const [popup, setPopup] = useState({ status: '', show: false, message: '' });
   const [showForm, setShowForm] = useState(false);
-
+  const { projects } = useProjects();
   const [filters, setFilters] = useState({
     title: '',
     dateRange: [null, null],
@@ -28,45 +29,84 @@ const IssueList = ({ refreshTrigger }) => {
     repository: [],
     tags: [],
     orderBy: 'created_at',
-    currentPage: 1
+    currentPage: 1,
+    project: [],        
+    projectStatus: []   
   });
 
   const filterParams = useMemo(() => {
-    const [startDate, endDate] = filters.dateRange;
-    return {
-      Title: filters.title || null,
-      startDate: startDate ? startDate.toISOString() : null,
-      endDate: endDate ? endDate.toISOString() : null,
-      Discarded: filters.discarded !== "" ? filters.discarded : null,
-      Status: filters.status !== "" ? filters.status : null,
-      Tags: filters.tags.length > 0 ? filters.tags.map(tag => tag.tagId) : null,
-      RepositoryId: filters.repository.length > 0 ? filters.repository : null,
-      OrderBy: filters.orderBy || 'created_at',
+    const params = {
+      Title: filters.title || undefined,
+      Discarded: filters.discarded !== '' ? filters.discarded : undefined,
+      Status: filters.status !== '' ? filters.status : undefined,
+      OrderBy: filters.orderBy,
       pageNumber: filters.currentPage,
-      pageSize: 5,
+      pageSize: 5
     };
+
+    params.ProjectId =
+      filters.project.length > 0
+        ? filters.project.join(',')
+        : null;
+
+    params.ProjectStatus =
+      filters.projectStatus.length > 0
+        ? filters.projectStatus.join(',')
+        : null;
+
+    console.log('🟢 ENVIANDO AL BACKEND:', params);
+    return params;
   }, [filters]);
 
-  const debouncedUpdateFilters = useCallback(
+  /** -------------------------------
+   *  DEBOUNCE (UNA SOLA VEZ)
+   -------------------------------- */
+  const debouncedUpdateRef = useRef(
     debounce((params) => {
       updateFilters(params);
-    }, 500),
-    []
+    }, 500)
   );
 
+  /** -------------------------------
+   *  FIRST LOAD FLAG
+   -------------------------------- */
+  const isFirstRender = useRef(true);
+
+  /** -------------------------------
+   *  APPLY FILTERS
+   -------------------------------- */
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      updateFilters(filterParams); // 1 sola request inicial
+      return;
+    }
+
+    debouncedUpdateRef.current(filterParams);
+  }, [filterParams, updateFilters]);
+
+  /** -------------------------------
+   *  REFRESH TRIGGER
+   -------------------------------- */
+  useEffect(() => {
+    updateFilters(filterParams);
+  }, [refreshTrigger]);
+
+  /** -------------------------------
+   *  CLEANUP
+   -------------------------------- */
+  useEffect(() => {
+    return () => {
+      debouncedUpdateRef.current.cancel();
+    };
+  }, []);
+
+  /** -------------------------------
+   *  INIT DATA
+   -------------------------------- */
   useEffect(() => {
     getTags();
   }, []);
-
-  useEffect(() => {
-    debouncedUpdateFilters(filterParams);
-  }, [filterParams, debouncedUpdateFilters]);
-
-  useEffect(() => {
-    if (refreshTrigger) {
-      debouncedUpdateFilters(filterParams);
-    }
-  }, [refreshTrigger]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
@@ -85,7 +125,9 @@ const IssueList = ({ refreshTrigger }) => {
       repository: [],
       tags: [],
       orderBy: 'created_at',
-      currentPage: 1
+      currentPage: 1,
+      project: [],
+      projectStatus: []
     });
   };
 
@@ -95,8 +137,8 @@ const IssueList = ({ refreshTrigger }) => {
 
   const handleSuccess = (msg) => {
     setPopup({ show: true, status: 'success', message: msg });
-    setShowForm(false); 
-    debouncedUpdateFilters(filterParams); 
+    setShowForm(false);
+    updateFilters(filterParams); // refresco inmediato
   };
 
   const handleError = (msg) => {
@@ -110,6 +152,10 @@ const IssueList = ({ refreshTrigger }) => {
   const handleImportIssues = (e) =>{
     addIssues(e);
   };
+
+  useEffect(() => {
+    console.log('FILTER PARAMS', filterParams);
+  }, [filterParams]);
 
   const handleSwitchDiscarded = async (issueId) => {
     try {
@@ -260,6 +306,42 @@ const IssueList = ({ refreshTrigger }) => {
               <MenuItem value="-created_at">Fecha Creación (más antiguo a más reciente)</MenuItem>
               <MenuItem value="title">Título (Orden ascendente)</MenuItem>
               <MenuItem value="-title">Título (Orden descendente)</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+
+        <div className="search-field">
+          <Autocomplete
+            multiple
+            value={projects.filter(p => filters.project.includes(p.projectId))}
+            onChange={(e, newValues) =>
+              handleFilterChange('project', newValues.map(p => p.projectId))
+            }
+            options={projects || []}
+            getOptionLabel={(p) => p?.name || ''}
+            isOptionEqualToValue={(option, value) =>
+              option.projectId === value.projectId
+            }
+            renderInput={(params) => (
+              <TextField {...params} label="Proyectos" variant="outlined" size="small" />
+            )}
+          />
+        </div>
+
+        <div className="search-field">
+          <FormControl fullWidth size="small">
+            <InputLabel>Estado en Proyecto</InputLabel>
+            <Select
+              multiple
+              value={filters.projectStatus}
+              label="Estado en Proyecto"
+              onChange={(e) => handleFilterChange('projectStatus', e.target.value)}
+            >
+              <MenuItem value="BACKLOG">Backlog</MenuItem>
+              <MenuItem value="READY">Ready</MenuItem>
+              <MenuItem value="IN PROGRESS">In progress</MenuItem>
+              <MenuItem value="IN REVIEW">In review</MenuItem>
+              <MenuItem value="DONE">Done</MenuItem>
             </Select>
           </FormControl>
         </div>

@@ -154,6 +154,7 @@ const ConfigPage = () => {
           para aprender cómo crear uno.
         </p>
         <p style={{ fontStyle: 'italic' }}>
+          Importante: Crear un token con el permiso "Issues" habilitado.
           Con este token podrás realizar solicitudes adicionales a GitHub,
           permitiéndote acceder a más recursos y aumentar el límite de
           peticiones por hora.

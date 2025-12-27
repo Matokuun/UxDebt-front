@@ -1,11 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { authFetch } from '../utils/authFetch';
-//import axios from 'axios';
-//import { saveAs } from 'file-saver';
+
+const DEFAULT_FILTERS = {
+  pageNumber: 1,
+  pageSize: 5,
+  Title: undefined,
+  startDate: undefined,
+  endDate: undefined,
+  Discarded: undefined,
+  Status: undefined,
+  RepositoryId: undefined,
+  ProjectId: undefined,
+  ProjectStatus: undefined,
+  Tags: [],
+  Labels: [],
+  OrderBy: 'created_at',
+};
 
 export const useIssue = () => {
   const [issues, setIssues] = useState([]);
   const [allIssues, setAllIssues] = useState([]);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -14,236 +30,136 @@ export const useIssue = () => {
     totalItems: 0,
     pageSize: 5,
   });
-  const [filters, setFilters] = useState({
-    pageSize: 5,
-    Title: null,
-    startDate: null,
-    endDate: null,
-    Discarded: null,
-    Status: null,
-    RepositoryId: null,
-    Tags: [],
-    Labels: [],
-    OrderBy: 'created_at',
-  });
 
+  const isFirstRender = useRef(true);
+
+  /* ============================
+     FETCH ALL ISSUES (una vez)
+  ============================ */
   useEffect(() => {
-    fetchIssues();
-    fetchAllIssues();
-  }, [filters]);
-
-  const fetchAllIssues = async () => {
-    try {
-      const response = await authFetch(
-        `${process.env.REACT_APP_API_URL}/Issue/GetAll/`
-      );
-      const data = await response.json();
-      setAllIssues(data || []);
-    } catch (error) {
-      console.error('🪝useIssue - Error fetching all issues:', error);
-    }
-  };
-
-  const fetchIssues = async () => {
-    const {
-      pageNumber,
-      pageSize,
-      Title,
-      startDate,
-      endDate,
-      Discarded,
-      Status,
-      RepositoryId,
-      Tags,
-      Labels,
-      OrderBy,
-    } = filters;
-
-    const formattedStartDate = startDate
-      ? new Date(startDate).toISOString().split('T')[0]
-      : null;
-    const formattedEndDate = endDate
-      ? new Date(endDate).toISOString().split('T')[0]
-      : null;
-
-    let body = {
-      Title: Title || undefined,
-      startDate: formattedStartDate,
-      endDate: formattedEndDate,
-      Discarded,
-      Status,
-      RepositoryId,
-      Tags,
-      Labels,
-      OrderBy,
-      pageNumber,
-      pageSize,
+    const fetchAllIssues = async () => {
+      try {
+        const response = await authFetch(
+          `${process.env.REACT_APP_API_URL}/Issue/GetAll/`
+        );
+        const data = await response.json();
+        setAllIssues(data || []);
+      } catch (error) {
+        console.error('🪝 useIssue - Error fetching all issues:', error);
+      }
     };
 
+    fetchAllIssues();
+  }, []);
+
+  /* ============================
+     FETCH ISSUES CON FILTROS
+  ============================ */
+  const fetchIssues = useCallback(async () => {
     try {
-      const url = `${process.env.REACT_APP_API_URL}/Issue/GetAllByFilter/`;
-      const response = await authFetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
+      const response = await authFetch(
+        `${process.env.REACT_APP_API_URL}/Issue/GetAllByFilter/`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(filters),
+        }
+      );
 
       const data = await response.json();
+
       console.log('🔍 Respuesta del backend:', data);
 
       setIssues(data.results || []);
-
       setPagination({
         totalItems: data.count,
-        currentPage: pageNumber,
-        pageSize: pageSize,
+        currentPage: filters.pageNumber,
+        pageSize: filters.pageSize,
         hasNext: data.next !== null,
         hasPrevious: data.previous !== null,
-        totalPages: Math.ceil(data.count / pageSize),
+        totalPages: Math.ceil(data.count / filters.pageSize),
       });
     } catch (error) {
-      console.error('🪝useIssue - Error fetching issues:', error);
+      console.error('🪝 useIssue - Error fetching issues:', error);
     }
-  };
+  }, [filters]);
 
-  const switchDiscarded = async (code) => {
-    try {
-      const response = await authFetch(
-        `${process.env.REACT_APP_API_URL}/Issue/SwitchDiscarded/${code}/`,
-        {
-          method: 'POST',
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('🪝useIssue - Network response was not ok');
-      }
-      return true;
-    } catch (error) {
-      console.error('🪝useIssue - Error switching discarded:', error);
-      throw error;
+  /* ============================
+     EFECTO CONTROLADO
+  ============================ */
+  useEffect(() => {
+    // evita doble request en mount (React StrictMode)
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      fetchIssues();
+      return;
     }
+
+    fetchIssues();
+  }, [fetchIssues]);
+
+  /* ============================
+     ACTIONS
+  ============================ */
+  const updateFilters = useCallback((newFilters) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+    }));
+  }, []);
+
+  const switchDiscarded = async (issueId) => {
+    await authFetch(
+      `${process.env.REACT_APP_API_URL}/Issue/SwitchDiscarded/${issueId}/`,
+      { method: 'POST' }
+    );
   };
 
   const updateIssue = async (issueId, updatedIssue) => {
-    try {
-      const response = await authFetch(
-        `${process.env.REACT_APP_API_URL}/Issue/Update/${issueId}/`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedIssue),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('🪝useIssue - Network response was not ok');
+    const response = await authFetch(
+      `${process.env.REACT_APP_API_URL}/Issue/Update/${issueId}/`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedIssue),
       }
+    );
 
-      setIssues((prevIssues) =>
-        prevIssues.map((i) => (i.issueId === issueId ? updatedIssue : i))
-      );
-      return updatedIssue;
-    } catch (error) {
-      console.error('🪝useIssue - Error updating issue:', error);
-      throw error;
+    if (!response.ok) {
+      throw new Error('Error actualizando issue');
     }
-  };
 
-  const updateFilters = (newFilters) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      ...newFilters,
-    }));
+    setIssues((prev) =>
+      prev.map((i) => (i.issueId === issueId ? updatedIssue : i))
+    );
   };
 
   const getIssue = async (id) => {
-    try {
-      const response = await authFetch(
-        `${process.env.REACT_APP_API_URL}/Issue/Get/${id}`
-      );
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching issue:', error);
-    }
+    const response = await authFetch(
+      `${process.env.REACT_APP_API_URL}/Issue/Get/${id}`
+    );
+    return response.json();
   };
 
   const getFile = async () => {
-    const {
-      pageNumber,
-      pageSize,
-      Title,
-      startDate,
-      endDate,
-      Discarded,
-      Status,
-      RepositoryId,
-      Tags,
-      Labels,
-      OrderBy,
-    } = filters;
-
-    const formattedStartDate = startDate
-      ? new Date(startDate).toISOString().split('T')[0]
-      : null;
-    const formattedEndDate = endDate
-      ? new Date(endDate).toISOString().split('T')[0]
-      : null;
-
-    let body = {
-      Title: Title || undefined,
-      startDate: formattedStartDate,
-      endDate: formattedEndDate,
-      Discarded,
-      Status,
-      RepositoryId,
-      Tags,
-      Labels,
-      OrderBy,
-      pageNumber,
-      pageSize,
-    };
-
-    try {
-      const url = `${process.env.REACT_APP_API_URL}/Issue/GetFile/`;
-      const response = await authFetch(url, {
+    const response = await authFetch(
+      `${process.env.REACT_APP_API_URL}/Issue/GetFile/`,
+      {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al descargar el archivo');
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(filters),
       }
+    );
 
-      const blob = await response.blob();
-      const urlBlob = window.URL.createObjectURL(blob);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
 
-      const now = new Date();
-      const pad = (n) => (n < 10 ? '0' + n : n);
-      const formattedDate = `${pad(now.getDate())}-${pad(
-        now.getMonth() + 1
-      )}-${now.getFullYear()}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
-      const filename = `issues_${formattedDate}.csv`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `issues_${Date.now()}.csv`;
+    link.click();
 
-      const link = document.createElement('a');
-      link.href = urlBlob;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-
-      link.remove();
-      window.URL.revokeObjectURL(urlBlob);
-    } catch (error) {
-      console.error('Fallo en frontend: ', error);
-    }
+    window.URL.revokeObjectURL(url);
   };
 
   const addIssues = async (e) => {
@@ -251,35 +167,22 @@ export const useIssue = () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    try {
-      const response = await authFetch(
-        `${process.env.REACT_APP_API_URL}/Issue/ImportIssues/`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log('Importación exitosa:', data);
-        alert('¡Issues importados correctamente!');
-      } else {
-        console.error('Error al importar:', data);
+    await authFetch(
+      `${process.env.REACT_APP_API_URL}/Issue/ImportIssues/`,
+      {
+        method: 'POST',
+        body: formData,
       }
-    } catch (error) {
-      console.error('Error:', error);
-    }
+    );
   };
 
   return {
     issues,
     allIssues,
     pagination,
+    updateFilters,
     switchDiscarded,
     updateIssue,
-    updateFilters,
     getIssue,
     getFile,
     addIssues,

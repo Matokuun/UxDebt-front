@@ -1,6 +1,6 @@
 export const authFetch = async (url, options = {}) => {
   const token = localStorage.getItem('access_token');
-  console.log('JWT enviado:', token);
+  console.log('JWT enviado');
 
   const headers = {
     ...(options.headers || {}),
