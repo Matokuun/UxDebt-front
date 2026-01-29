@@ -20,21 +20,25 @@ const Header = () => {
       </div>
 
       <nav className="navbar">
-        <NavLink to="/Issues" className={({ isActive }) => (isActive ? 'active' : '')}>
-          Issues
-        </NavLink>
-        <NavLink to="/repositories" className={({ isActive }) => (isActive ? 'active' : '')}>
-          Repositorios
-        </NavLink>
-        <NavLink to="/tags" className={({ isActive }) => (isActive ? 'active' : '')}>
-          Tags
-        </NavLink>
-        <NavLink to="/projects" className={({ isActive }) => (isActive ? 'active' : '')}>
-          Proyectos
-        </NavLink>
-        <NavLink to="/configuracion" className={({ isActive }) => (isActive ? 'active' : '')}>
-          Configuración
-        </NavLink>
+        {isAuthenticated ? (
+          <>
+          <NavLink to="/Issues" className={({ isActive }) => (isActive ? 'active' : '')}>
+            Issues
+          </NavLink>
+          <NavLink to="/repositories" className={({ isActive }) => (isActive ? 'active' : '')}>
+            Repositorios
+          </NavLink>
+          <NavLink to="/tags" className={({ isActive }) => (isActive ? 'active' : '')}>
+            Tags
+          </NavLink>
+          <NavLink to="/projects" className={({ isActive }) => (isActive ? 'active' : '')}>
+            Proyectos
+          </NavLink>
+          <NavLink to="/configuracion" className={({ isActive }) => (isActive ? 'active' : '')}>
+            Configuración
+          </NavLink>
+          </>
+        ) : (<></>)}
         {!isAuthenticated ? (
           <>
             <NavLink to="/login">Iniciar sesión</NavLink>

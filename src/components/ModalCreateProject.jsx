@@ -33,7 +33,9 @@ const ModalCreateProject = ({ onClose, onProjectCreated }) => {
         severity: 'success',
         message: 'Proyecto importado con éxito',
       });
-      onProjectCreated();
+      if (typeof onProjectCreated === 'function') {
+        onProjectCreated();
+      }
       setTimeout(onClose, 1500);
     } catch (err) {
       setSnackbar({

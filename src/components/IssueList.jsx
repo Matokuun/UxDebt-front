@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef  } from 'react';
+import React, { useState, useEffect, useMemo, useRef  } from 'react';
 import { TextField, FormControl, InputLabel, Select, MenuItem, Autocomplete } from '@mui/material';
 import { DateRangePicker } from '@mui/x-date-pickers-pro';
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
@@ -35,27 +35,19 @@ const IssueList = ({ refreshTrigger }) => {
   });
 
   const filterParams = useMemo(() => {
-    const params = {
-      Title: filters.title || undefined,
-      Discarded: filters.discarded !== '' ? filters.discarded : undefined,
-      Status: filters.status !== '' ? filters.status : undefined,
-      OrderBy: filters.orderBy,
+    const [startDate, endDate] = filters.dateRange;
+    return {
+      Title: filters.title || null,
+      startDate: startDate ? startDate.toISOString() : null,
+      endDate: endDate ? endDate.toISOString() : null,
+      Discarded: filters.discarded !== "" ? filters.discarded : null,
+      Status: filters.status !== "" ? filters.status : null,
+      Tags: filters.tags.length > 0 ? filters.tags.map(tag => tag.tagId) : null,
+      RepositoryId: filters.repository.length > 0 ? filters.repository : null,
+      ProjectId: filters.project.length > 0 ? filters.project.join(',') : null,
+      ProjectStatus: filters.projectStatus.length > 0 ? filters.projectStatus.join(',') : null,
       pageNumber: filters.currentPage,
-      pageSize: 5
     };
-
-    params.ProjectId =
-      filters.project.length > 0
-        ? filters.project.join(',')
-        : null;
-
-    params.ProjectStatus =
-      filters.projectStatus.length > 0
-        ? filters.projectStatus.join(',')
-        : null;
-
-    console.log('🟢 ENVIANDO AL BACKEND:', params);
-    return params;
   }, [filters]);
 
   /** -------------------------------
@@ -89,7 +81,7 @@ const IssueList = ({ refreshTrigger }) => {
    *  REFRESH TRIGGER
    -------------------------------- */
   useEffect(() => {
-    updateFilters(filterParams);
+    debouncedUpdateRef.current(filterParams);
   }, [refreshTrigger]);
 
   /** -------------------------------
