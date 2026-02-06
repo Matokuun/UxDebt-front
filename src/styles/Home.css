@@ -5,7 +5,8 @@
 .page-selection {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between; /* Alinear los elementos alrededor */
+  justify-content: center; /* Alinear los elementos alrededor */
+  gap: 20px;
 }
 
 .card {
@@ -23,4 +24,10 @@
 .card:hover {
   transform: translateY(-5px); /* Efecto de levantar la tarjeta al pasar el mouse */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Agregamos una sombra al pasar el mouse */
+}
+
+.card-image {
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
 }

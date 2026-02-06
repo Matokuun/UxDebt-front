@@ -11,6 +11,7 @@ import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import PrivateRoute from './components/PrivateRoute';
 import Projects from './components/Projects';
+import Home from './components/Home';
 import './App.css';
 
 function App() {
@@ -20,7 +21,15 @@ function App() {
         <div className="App-container">
           <Header />
           <Routes>
-            <Route path="/" element={<Navigate replace to="/Issues" />} />
+            <Route
+              path="/home"
+              element={
+                <PrivateRoute>
+                  <Home />
+                </PrivateRoute>
+              }
+            />
+            <Route path="/" element={<Navigate replace to="/home" />} />
             <Route
               path="/Issues"
               element={

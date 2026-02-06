@@ -1,16 +1,25 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import '../styles/Header.css';
 import { useContext } from 'react';
 import { AuthContext } from '../components/AuthContext';
 
 const Header = () => {
   const { isAuthenticated, logout } = useContext(AuthContext);
+  const location = useLocation();
+  const path = location.pathname.toLowerCase();
+
+  const isHome = path === ('/home' | '/' );
+  const isProjects = path.startsWith('/projects');
+  const isRepositories =
+    path.startsWith('/issues') ||
+    path.startsWith('/repositories') ||
+    path.startsWith('/tags');
 
   return (
     <header className="page-header">
       <div className="logo-text">
-        <a href="/issues" className="logo">
+        <a href="/" className="logo">
           <img src="./././logo-unlp.png" alt="UNLP Logo" />
         </a>
         <div className="title">
@@ -20,32 +29,33 @@ const Header = () => {
       </div>
 
       <nav className="navbar">
-        {isAuthenticated ? (
+        {isAuthenticated && isProjects && (
+          <NavLink to="/projects">Proyectos</NavLink>
+        )}
+
+        {isAuthenticated && isRepositories && (
           <>
-          <NavLink to="/Issues" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Issues
-          </NavLink>
-          <NavLink to="/repositories" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Repositorios
-          </NavLink>
-          <NavLink to="/tags" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Tags
-          </NavLink>
-          <NavLink to="/projects" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Proyectos
-          </NavLink>
-          <NavLink to="/configuracion" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Configuración
-          </NavLink>
+            <NavLink to="/Issues">Issues</NavLink>
+            <NavLink to="/repositories">Repositorios</NavLink>
+            <NavLink to="/tags">Tags</NavLink>
           </>
-        ) : (<></>)}
+        )}
+
         {!isAuthenticated ? (
           <>
             <NavLink to="/login">Iniciar sesión</NavLink>
             <NavLink to="/register">Registrarse</NavLink>
           </>
         ) : (
-          <NavLink to="/login" onClick={logout}>Cerrar sesión</NavLink>
+          <>
+          <NavLink to="/configuracion"> Configuración </NavLink>
+          <NavLink to="/login" onClick={logout}>
+            Cerrar sesión
+          </NavLink>
+          </>
+        )}
+        {isAuthenticated && !isHome && (
+          <NavLink to="/home">Inicio</NavLink>
         )}
       </nav>
     </header>

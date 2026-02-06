@@ -25,7 +25,7 @@ const RegisterPage = () => {
         message: 'Cuenta creada e iniciada correctamente',
       });
 
-      setTimeout(() => navigate('/issues'), 800);
+      setTimeout(() => navigate('/'), 800);
     } catch (err) {
       setSnackbar({
         open: true,
