@@ -54,9 +54,6 @@ const Header = () => {
           </NavLink>
           </>
         )}
-        {isAuthenticated && !isHome && (
-          <NavLink to="/home">Inicio</NavLink>
-        )}
       </nav>
     </header>
   );
