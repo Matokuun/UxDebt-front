@@ -1,8 +1,9 @@
 FROM node:20-alpine 
 
 WORKDIR /app
-RUN apk add --no-cache git
-RUN git clone https://github.com/Matokuun/UxDebt-front .
+#RUN apk add --no-cache git
+#RUN git clone https://github.com/Matokuun/UxDebt-front .
+COPY . .
 
 RUN npm install serve -g
 RUN npm install
