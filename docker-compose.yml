@@ -1,0 +1,24 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ux-issue-tracker-front
+    restart: unless-stopped
+    tty: true
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ux-issue-tracker-front.rule=Host(`${APP_HOST}`)"
+      - "traefik.http.routers.ux-issue-tracker-front.entrypoints=websecure"
+      - "traefik.http.routers.ux-issue-tracker-front.tls.certresolver=myresolver"
+      # Forward requests to the correct port on the container
+      - "traefik.http.services.ux-issue-tracker-front.loadbalancer.server.port=3000"
+    ports:
+      - "${APP_PORT}:3000"
+    volumes:
+      - .:/app
+networks:
+  traefik-public:
+    external: true
