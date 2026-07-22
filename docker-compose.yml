@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: ux-issue-tracker-front
+    restart: unless-stopped
     tty: true
     networks:
       - traefik-public
